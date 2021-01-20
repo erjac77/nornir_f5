@@ -1,6 +1,7 @@
 """Nornir F5 ATC tasks.
 
-Allows to deploy F5 Automation Tool Chain (ATC) declaration (AS3, DO, TS) on BIG-IP systems.
+Allows to deploy F5 Automation Tool Chain (ATC) declaration (AS3, DO, TS)
+on BIG-IP systems.
 
 Todo:
     * Device
@@ -140,7 +141,7 @@ def _check_task_bigip(
     # AS3
     # if atc_service == "AS3" and atc_method in ["POST", "DELETE"]:
     resp = f5_rest_client(task).get(
-        f"https://{task.host.name}:{task.host.port}{atc_task_endpoint}/{atc_task_id}"  # noqa: B950
+        f"https://{task.host.name}:{task.host.port}{atc_task_endpoint}/{atc_task_id}"
     )
     message = resp.json()["results"][0]["message"]
 
@@ -194,15 +195,16 @@ def f5_deploy_atc(
 
     Args:
         task (Task): The Nornir task.
-        as3_show (str): The AS3 `show` value. Accepted values include [base, full, expanded].
+        as3_show (str): The AS3 `show` value.
+            Accepted values include [base, full, expanded].
             `base` means system returns the declaration as originally deployed
             (but with secrets like passphrases encrypted).
             `full` returns the declaration with all default schema properties populated.
-            `expanded` includes all URLs, base64s, and other references expanded to their
-            final static values.
-        as3_show_hash (bool): The AS3 `showHash` value that is used as protection mechanism
-            for tenants in a declaration. If set to `True`, the result returns an
-            `optimisticLockKey` for each tenant.
+            `expanded` includes all URLs, base64s, and other references expanded to
+            their final static values.
+        as3_show_hash (bool): The AS3 `showHash` value that is used as protection
+            mechanism for tenants in a declaration. If set to `True`, the result returns
+            an `optimisticLockKey` for each tenant.
         as3_tenant: The AS3 tenant filter. This only updates the tenant specified,
             even if there are other tenants in the declaration.
         atc_declaration (str): The ATC declaration.
@@ -217,7 +219,8 @@ def f5_deploy_atc(
             for all services, and [DELETE] for AS3.
         atc_retries (int): The number of times the task will check for a finished task
             before failing.
-        atc_service (str): The ATC service. Accepted values include [AS3, Device, Telemetry].
+        atc_service (str): The ATC service.
+            Accepted values include [AS3, Device, Telemetry].
             If not provided, this will auto select from the declaration.
 
     Returns:

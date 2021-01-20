@@ -1,6 +1,6 @@
 """Nornir F5 connection plugin.
 
-Allows interacting with F5 devices using the `iControlREST` API.
+Allows to manage connections with F5 devices.
 """
 
 from typing import Any, Dict, Optional
@@ -26,7 +26,7 @@ DEFAULT_TIMEOUT = 5  # seconds
 
 
 class _TimeoutHTTPAdapter(HTTPAdapter):
-    """Custom `Transport Adapter` with default timeouts.
+    """Custom `Transport Adapter` with a default timeout.
 
     Allows to set a default timeout for all HTTP calls.
     """
@@ -57,7 +57,7 @@ def _logging_hook(response: Response, *args, **kwargs) -> None:
 class F5iControlREST:
     """Connection plugin for F5 `iControlREST` API.
 
-    Allows to manage connections with F5 devices.
+    This plugin connects to F5 devices using the `iControlREST` API.
     """
 
     def open(
@@ -70,10 +70,10 @@ class F5iControlREST:
         extras: Optional[Dict[str, Any]] = None,
         configuration: Optional[Config] = None,
     ) -> None:
-        """Opens the connection and save it under `self.connection`.
+        """Opens the connectionsaves it under `self.connection`.
 
-        Gets an authentication token if not present in the headers.
         Uses a custom `Transport Adapter` to provide default timeout and retry strategy.
+        Gets an authentication token.
         """
         connection = requests.Session()
         connection.verify = extras.get("validate_certs", False)

@@ -61,7 +61,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",
+                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],

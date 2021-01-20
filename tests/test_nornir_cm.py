@@ -102,7 +102,7 @@ def test_get_sync_status(nornir, resp, expected):
             {},
             ["Disconnected"],
             {
-                "result": "The configuration synchronization has failed (Disconnected).",
+                "result": "The configuration synchronization has failed (Disconnected).",  # noqa B950
                 "changed": False,
                 "failed": True,
             },

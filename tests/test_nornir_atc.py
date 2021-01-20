@@ -51,7 +51,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",
+                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
@@ -71,7 +71,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",
+                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
@@ -91,7 +91,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",
+                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "no change"],
@@ -131,7 +131,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",
+                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress"],
@@ -151,7 +151,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",
+                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "failed"],
@@ -170,7 +170,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",
+                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
@@ -257,7 +257,7 @@ def test_as3_deploy(
         responses.add(
             kwargs["atc_method"] if "atc_method" in kwargs else "GET",
             re.compile(
-                "https://bigip(1|2).localhost:443/mgmt/shared/appsvcs/declare(/Simple_01)?"
+                "https://bigip(1|2).localhost:443/mgmt/shared/appsvcs/declare(/Simple_01)?"  # noqa B950
             ),
             match_querystring=False,
             json=responses_data,

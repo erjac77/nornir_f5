@@ -1,3 +1,5 @@
+"""Nornir connections plugins."""
+
 from nornir_f5.plugins.connections.f5 import (
     CONNECTION_NAME,
     F5iControlREST,

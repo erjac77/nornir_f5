@@ -70,14 +70,15 @@ def f5_sync_config(
             if the sync-config is complete.
         direction (str): The direction when performing the config-sync action.
             Accepted values include [to-group, from-group].
-            `from-group` updates the configuration of the local device with the configuration of
-            the remote device in the specified device group that has the newest configuration.
+            `from-group` updates the configuration of the local device with the
+            configuration of the remote device in the specified device group that has
+            the newest configuration.
             `to-group` updates the configurations of the remote devices in the specified
             device group with the configuration of the local device.
         force_full_load_push (bool): It forces all other devices to pull
             all synchronizable configuration from this device.
-        retries (int): The number of times the task will check for a finished config-sync action
-            before failing.
+        retries (int): The number of times the task will check for a finished
+            config-sync action before failing.
 
     Returns:
         Result: The result of the config-sync action.
@@ -94,7 +95,7 @@ def f5_sync_config(
     if sync_status not in ["In Sync", "Standalone"]:
         data = {
             "command": "run",
-            "utilCmdArgs": f"config-sync {direction} {device_group}{' force-full-load-push' if force_full_load_push else ''}",  # noqa E501
+            "utilCmdArgs": f"config-sync {direction} {device_group}{' force-full-load-push' if force_full_load_push else ''}",  # noqa B950
         }
         f5_rest_client(task).post(
             f"https://{task.host.hostname}:{task.host.port}/mgmt/tm/cm", json=data
@@ -125,7 +126,7 @@ def f5_sync_config(
                 )
 
         raise Exception(
-            f"The configuration synchronization has reached maximum retries ({sync_status})."  # noqa E501
+            f"The configuration synchronization has reached maximum retries ({sync_status})."  # noqa B950
         )
 
     return Result(host=task.host, result=sync_status)
