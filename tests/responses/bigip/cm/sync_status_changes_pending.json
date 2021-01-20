@@ -1,0 +1,31 @@
+{
+  "entries": {
+    "https://localhost/mgmt/tm/cm/sync-status/0": {
+      "nestedStats": {
+        "entries": {
+          "color": {
+            "description": "yellow"
+          },
+          "https://localhost/mgmt/tm/cm/syncStatus/0/details": {
+            "nestedStats": {
+              "entries": {
+                "https://localhost/mgmt/tm/cm/syncStatus/0/details/2": {
+                  "nestedStats": {
+                    "entries": {
+                      "details": {
+                        "description": " - Recommended action: Synchronize bigip1.localhost to group device_sync_group"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "status": {
+            "description": "Changes Pending"
+          }
+        }
+      }
+    }
+  }
+}

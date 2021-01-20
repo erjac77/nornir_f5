@@ -1,0 +1,13 @@
+---
+inventory:
+  plugin: SimpleInventory
+  options:
+    host_file: tests/inventory/hosts.yml
+    group_file: tests/inventory/groups.yml
+    defaults_file: tests/inventory/defaults.yml
+logging:
+  enabled: false
+runner:
+  plugin: threaded
+  options:
+    num_workers: 10

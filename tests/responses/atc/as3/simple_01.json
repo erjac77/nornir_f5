@@ -1,0 +1,39 @@
+{
+  "Simple_01": {
+    "A1": {
+      "class": "Application",
+      "service": {
+        "class": "Service_HTTP",
+        "virtualAddresses": [
+          "10.20.1.10"
+        ],
+        "pool": "web_pool"
+      },
+      "web_pool": {
+        "class": "Pool",
+        "monitors": [
+          "http"
+        ],
+        "members": [
+          {
+            "servicePort": 8080,
+            "serverAddresses": [
+              "192.0.1.10",
+              "192.0.1.11"
+            ]
+          }
+        ]
+      }
+    },
+    "class": "Tenant"
+  },
+  "class": "AS3",
+  "schemaVersion": "3.0.0",
+  "label": "Simple 1",
+  "remark": "Simple HTTP application with RR pool",
+  "id": "autogen_447c8680-990a-4475-9d83-4d36c8d8455c",
+  "updateMode": "selective",
+  "controls": {
+    "archiveTimestamp": "2021-01-09T16:09:50.443Z"
+  }
+}

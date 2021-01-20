@@ -1,0 +1,13 @@
+{
+  "entries": {
+    "https://localhost/mgmt/tm/cm/sync-status/0": {
+      "nestedStats": {
+        "entries": {
+          "status": {
+            "description": "In Sync"
+          }
+        }
+      }
+    }
+  }
+}

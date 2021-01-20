@@ -1,0 +1,13 @@
+{
+  "entries": {
+    "https://localhost/mgmt/tm/cm/failover-status/0": {
+      "nestedStats": {
+        "entries": {
+          "status": {
+            "description": "STANDBY"
+          }
+        }
+      }
+    }
+  }
+}

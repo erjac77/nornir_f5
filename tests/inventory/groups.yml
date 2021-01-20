@@ -1,0 +1,6 @@
+bigip1_2:
+  data:
+    device_group: device_sync_group
+    appsvcs:
+      Simple_01:
+        atc_declaration_file: ./tests/declarations/atc/as3/simple_01.json
