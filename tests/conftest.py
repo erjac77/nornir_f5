@@ -37,8 +37,8 @@ def nornir():
     return InitNornir(config_file="tests/config.yml")
 
 
-@pytest.fixture(scope="function", autouse=True)
-def reset_data(nornir):
+@pytest.fixture(autouse=True)
+def _reset_data(nornir):
     # Reset all failed host for next test
     nornir.data.reset_failed_hosts()
 
@@ -47,10 +47,10 @@ def reset_data(nornir):
 
 
 @pytest.fixture(autouse=True)
-def login_responses():
+def _login_responses():
     responses.add(
         responses.POST,
         re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authn/login"),
-        json=load_json("./tests/responses/bigip/shared/authn/login_success.json"),
+        json=load_json(f"{base_resp_dir}/bigip/shared/authn/login_success.json"),
         status=200,
     )

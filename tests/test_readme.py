@@ -11,7 +11,8 @@ from nornir_f5.plugins.tasks import (
     f5_get_failover_status,
     f5_sync_config,
 )
-from tests.conftest import load_json
+
+from .conftest import base_resp_dir, load_json
 
 
 def as3_post(task: Task, as3_tenant: str) -> Result:
@@ -50,18 +51,12 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
 
 @pytest.mark.parametrize(
-    "kwargs,resp,task_id,task_statuses,sync_statuses",
+    ("resp", "task_id", "task_statuses", "sync_statuses"),
     [
         (
             {
-                "as3_tenant": "Simple_01",
-                "atc_declaration_file": "./tests/declarations/atc/as3/simple_01.json",
-                "atc_method": "POST",
-                "atc_service": "AS3",
-            },
-            {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
@@ -70,7 +65,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
     ],
 )
 @responses.activate
-def test_as3_post(nornir, resp, kwargs, task_id, task_statuses, sync_statuses):
+def test_as3_post(nornir, resp, task_id, task_statuses, sync_statuses):
     last_sync_status = sync_statuses[len(sync_statuses) - 1]
 
     # Callback to provide dynamic task status responses
@@ -93,7 +88,7 @@ def test_as3_post(nornir, resp, kwargs, task_id, task_statuses, sync_statuses):
             {},
             json.dumps(
                 load_json(
-                    f"./tests/responses/atc/as3/task_{current_task_status.replace(' ', '_').lower()}.json"  # noqa B950
+                    f"{base_resp_dir}/atc/as3/task_{current_task_status.replace(' ', '_').lower()}.json"  # noqa B950
                 )
             ),
         )
@@ -117,7 +112,7 @@ def test_as3_post(nornir, resp, kwargs, task_id, task_statuses, sync_statuses):
             {},
             json.dumps(
                 load_json(
-                    f"./tests/responses/bigip/cm/sync_status_{current_sync_status}.json"
+                    f"{base_resp_dir}/bigip/cm/sync_status_{current_sync_status}.json"
                 )
             ),
         )
@@ -126,19 +121,19 @@ def test_as3_post(nornir, resp, kwargs, task_id, task_statuses, sync_statuses):
     responses.add(
         responses.GET,
         re.compile("https://bigip1.localhost:443/mgmt/tm/cm/failover-status"),
-        json=load_json("./tests/responses/bigip/cm/failover_status_active.json"),
+        json=load_json(f"{base_resp_dir}/bigip/cm/failover_status_active.json"),
         status=200,
     )
     responses.add(
         responses.GET,
         re.compile("https://bigip2.localhost:443/mgmt/tm/cm/failover-status"),
-        json=load_json("./tests/responses/bigip/cm/failover_status_standby.json"),
+        json=load_json(f"{base_resp_dir}/bigip/cm/failover_status_standby.json"),
         status=200,
     )
     responses.add(
         responses.GET,
         re.compile("https://bigip(1|2).localhost:443/mgmt/shared/appsvcs/info"),
-        json=load_json("./tests/responses/atc/as3/version_3.22.1.json"),
+        json=load_json(f"{base_resp_dir}/atc/as3/version_3.22.1.json"),
         status=200,
     )
     responses.add(

@@ -1,10 +1,27 @@
 [flake8]
-select = B,B9,C,D,DAR,E,F,I,N,RST,S,W
-ignore = E203,E501,W503
+select =
+  A00, # flake8-builtins
+  B, B9, # flake8-bugbear
+  BLK, # flake8-black
+  C4, # flake8-comprehensions
+  C90, # mccabe
+  D, # flake8-docstrings
+  DAR, # darglint
+  E, # pycodestyle (errors)
+  E8, # flake8-eradicate
+  F, # pyflakes
+  I00, # flake8-isort
+  I90, # flake8-requirements
+  N8, # pep8-naming
+  PT, # flake8-pytest-style
+  S, # flake8-bandit
+  W # pycodestyle (warnings)
+ignore = E203, E501, W503
+extend-ignore = E800 # TODO: Remove when feature complete
 max-line-length = 80
 max-complexity = 10
 docstring-convention = google
-per-file-ignores = tests/*:D1,S101
+per-file-ignores = tests/*: D1, S101
 exclude =
   .eggs,
   .git,

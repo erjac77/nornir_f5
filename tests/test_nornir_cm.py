@@ -9,16 +9,17 @@ from nornir_f5.plugins.tasks import (
     f5_get_sync_status,
     f5_sync_config,
 )
-from tests.conftest import assert_result, base_resp_dir, load_json
+
+from .conftest import assert_result, base_resp_dir, load_json
 
 
 @pytest.mark.parametrize(
-    "resp,expected",
+    ("resp", "expected"),
     [
         (
             {
                 "status_code": 200,
-                "data": "./tests/responses/bigip/cm/failover_status_active.json",
+                "data": f"{base_resp_dir}/bigip/cm/failover_status_active.json",
             },
             {"result": "ACTIVE", "changed": False, "failed": False},
         ),
@@ -43,12 +44,12 @@ def test_get_failover_status(nornir, resp, expected):
 
 
 @pytest.mark.parametrize(
-    "resp,expected",
+    ("resp", "expected"),
     [
         (
             {
                 "status_code": 200,
-                "data": "./tests/responses/bigip/cm/sync_status_in_sync.json",
+                "data": f"{base_resp_dir}/bigip/cm/sync_status_in_sync.json",
             },
             {"result": "In Sync", "changed": False, "failed": False},
         ),
@@ -73,7 +74,7 @@ def test_get_sync_status(nornir, resp, expected):
 
 
 @pytest.mark.parametrize(
-    "kwargs,sync_statuses,expected",
+    ("kwargs", "sync_statuses", "expected"),
     [
         # Successful sync, direction 'to-group'
         (

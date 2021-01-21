@@ -82,6 +82,9 @@ def f5_sync_config(
 
     Returns:
         Result: The result of the config-sync action.
+
+    Raises:
+        Exception: The raised exception when the task had an error.
     """
     sync_status = task.run(
         name="Get the sync status",

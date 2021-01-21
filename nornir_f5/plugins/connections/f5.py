@@ -60,7 +60,7 @@ class F5iControlREST:
     This plugin connects to F5 devices using the `iControlREST` API.
     """
 
-    def open(
+    def open(  # noqa A003
         self,
         hostname: Optional[str],
         username: Optional[str],
@@ -74,6 +74,15 @@ class F5iControlREST:
 
         Uses a custom `Transport Adapter` to provide default timeout and retry strategy.
         Gets an authentication token.
+
+        Args:
+            hostname (Optional[str]): The hostname of the device.
+            username (Optional[str]): The username used to access the device.
+            password (Optional[str]): The password used to access the device.
+            port (Optional[int]): The service port.
+            platform (Optional[str]): The device family platform.
+            extras (Optional[Dict[str, Any]): The extra variables.
+            configuration (Optional[Config]): The configuration.
         """
         connection = requests.Session()
         connection.verify = extras.get("validate_certs", False)

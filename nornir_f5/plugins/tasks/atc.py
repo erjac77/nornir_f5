@@ -225,6 +225,9 @@ def f5_deploy_atc(
 
     Returns:
         Result: The result.
+
+    Raises:
+        Exception: The raised exception when the task had an error.
     """
     # Get ATC declaration from file
     if atc_declaration_file:

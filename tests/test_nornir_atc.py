@@ -5,11 +5,12 @@ import pytest
 
 import responses
 from nornir_f5.plugins.tasks import f5_deploy_atc
-from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_json
+
+from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
 
 
 @pytest.mark.parametrize(
-    "kwargs,resp,task_id,task_statuses,expected",
+    ("kwargs", "resp", "task_id", "task_statuses", "expected"),
     [
         # GET declaration with show and show_hash
         (
@@ -18,11 +19,11 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
                 "as3_show_hash": True,
                 "atc_service": "AS3",
             },
-            {"status_code": 200, "data": "./tests/declarations/atc/as3/simple_01.json"},
+            {"status_code": 200, "data": f"{base_decl_dir}/atc/as3/simple_01.json"},
             "",
             [""],
             {
-                "result_file": "./tests/declarations/atc/as3/simple_01.json",
+                "result_file": f"{base_decl_dir}/atc/as3/simple_01.json",
                 "changed": False,
                 "failed": False,
             },
@@ -51,12 +52,12 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
             {
-                "result_file": "./tests/responses/atc/as3/task_success.json",
+                "result_file": f"{base_resp_dir}/atc/as3/task_success.json",
                 "changed": True,
                 "failed": False,
             },
@@ -65,18 +66,18 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
         (
             {
                 "as3_tenant": "Simple_01",
-                "atc_declaration_file": "./tests/declarations/atc/as3/simple_01.json",
+                "atc_declaration_file": f"{base_decl_dir}/atc/as3/simple_01.json",
                 "atc_method": "POST",
                 "atc_service": "AS3",
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
             {
-                "result_file": "./tests/responses/atc/as3/task_success.json",
+                "result_file": f"{base_resp_dir}/atc/as3/task_success.json",
                 "changed": True,
                 "failed": False,
             },
@@ -91,12 +92,12 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "no change"],
             {
-                "result_file": "./tests/responses/atc/as3/task_no_change.json",
+                "result_file": f"{base_resp_dir}/atc/as3/task_no_change.json",
                 "changed": False,
                 "failed": False,
             },
@@ -111,7 +112,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_failed.json",
+                "data": f"{base_resp_dir}/atc/as3/declaration_failed.json",
             },
             "",
             [],
@@ -131,7 +132,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress"],
@@ -151,7 +152,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "failed"],
@@ -170,12 +171,12 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
             },
             {
                 "status_code": 200,
-                "data": "./tests/responses/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
             {
-                "result_file": "./tests/responses/atc/as3/task_success.json",
+                "result_file": f"{base_resp_dir}/atc/as3/task_success.json",
                 "changed": True,
                 "failed": False,
             },
@@ -201,7 +202,7 @@ from tests.conftest import assert_result, base_decl_dir, base_resp_dir, load_jso
 @pytest.mark.parametrize("as3_version", ["3.4.0", "3.22.1"])
 @responses.activate
 def test_as3_deploy(
-    nornir, kwargs, task_id, task_statuses, resp, expected, as3_version
+    nornir, kwargs, resp, task_id, task_statuses, expected, as3_version
 ):
     # Callback to provide dynamic task status responses
     def get_task_callback(request):

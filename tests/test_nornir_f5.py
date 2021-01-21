@@ -5,7 +5,8 @@ from nornir.core.task import Result, Task
 import responses
 from nornir_f5 import __version__
 from nornir_f5.plugins.connections import CONNECTION_NAME, f5_rest_client
-from tests.conftest import assert_result
+
+from .conftest import assert_result
 
 
 def test_version():
