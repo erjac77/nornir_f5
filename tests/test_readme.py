@@ -7,9 +7,9 @@ from nornir_utils.plugins.functions import print_result
 
 import responses
 from nornir_f5.plugins.tasks import (
-    f5_deploy_atc,
-    f5_get_failover_status,
-    f5_sync_config,
+    f5_atc,
+    f5_bigip_cm_failover_status,
+    f5_bigip_cm_sync_config,
 )
 
 from .conftest import base_resp_dir, load_json
@@ -17,13 +17,13 @@ from .conftest import base_resp_dir, load_json
 
 def as3_post(task: Task, as3_tenant: str) -> Result:
     failover_status = task.run(
-        name="Get failover status", task=f5_get_failover_status
+        name="Get failover status", task=f5_bigip_cm_failover_status
     ).result
 
     if failover_status == "ACTIVE":
         task.run(
             name="AS3 POST",
-            task=f5_deploy_atc,
+            task=f5_atc,
             atc_delay=0,
             atc_method="POST",
             atc_retries=3,
@@ -36,7 +36,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
         task.run(
             name="Synchronize the devices",
-            task=f5_sync_config,
+            task=f5_bigip_cm_sync_config,
             delay=0,
             device_group=task.host["device_group"],
             retries=3,
@@ -44,10 +44,10 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
         return Result(
             host=task.host,
-            result="ACTIVE device, AS3 declaration successfully deployed",
+            result="ACTIVE device, AS3 declaration successfully deployed.",
         )
     else:
-        return Result(host=task.host, result="STANDBY device, skipped")
+        return Result(host=task.host, result="STANDBY device, skipped.")
 
 
 @pytest.mark.parametrize(
@@ -170,8 +170,8 @@ def test_as3_post(nornir, resp, task_id, task_statuses, sync_statuses):
     assert not result.failed
     assert (
         result["bigip1.localhost"].result
-        == "ACTIVE device, AS3 declaration successfully deployed"
+        == "ACTIVE device, AS3 declaration successfully deployed."
     )
     assert result["bigip1.localhost"].changed
-    assert result["bigip2.localhost"].result == "STANDBY device, skipped"
+    assert result["bigip2.localhost"].result == "STANDBY device, skipped."
     assert not result["bigip2.localhost"].changed

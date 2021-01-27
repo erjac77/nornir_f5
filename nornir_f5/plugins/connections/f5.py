@@ -1,6 +1,6 @@
 """Nornir F5 connection plugin.
 
-Allows to manage connections with F5 devices.
+Allows to interact with F5 devices.
 """
 
 from typing import Any, Dict, Optional
@@ -23,12 +23,14 @@ DEFAULT_RETRY_STRATEGY = Retry(
     status_forcelist=[429, 500, 502, 503, 504],
 )
 DEFAULT_TIMEOUT = 5  # seconds
+LOGIN_URI = "/mgmt/shared/authn/login"
+LOGOUT_URI = "/mgmt/shared/authz/tokens"
 
 
 class _TimeoutHTTPAdapter(HTTPAdapter):
     """Custom `Transport Adapter` with a default timeout.
 
-    Allows to set a default timeout for all HTTP calls.
+    This class allows to set a default timeout for all HTTP calls.
     """
 
     def __init__(self, *args, **kwargs):
@@ -55,9 +57,11 @@ def _logging_hook(response: Response, *args, **kwargs) -> None:
 
 
 class F5iControlREST:
-    """Connection plugin for F5 `iControlREST` API.
+    """Connection plugin for F5 BIG-IP systems.
 
-    This plugin connects to F5 devices using the `iControlREST` API.
+    This plugin allows to make calls to an F5 REST server.
+
+    Authentication is handled automatically.
     """
 
     def open(  # noqa A003
@@ -70,10 +74,9 @@ class F5iControlREST:
         extras: Optional[Dict[str, Any]] = None,
         configuration: Optional[Config] = None,
     ) -> None:
-        """Opens the connectionsaves it under `self.connection`.
+        """Gets a token and opens the connection.
 
         Uses a custom `Transport Adapter` to provide default timeout and retry strategy.
-        Gets an authentication token.
 
         Args:
             hostname (Optional[str]): The hostname of the device.
@@ -94,7 +97,7 @@ class F5iControlREST:
 
         kwargs = {
             "max_retries": DEFAULT_RETRY_STRATEGY,
-            "timeout": extras.get("timeout"),
+            "timeout": extras.get("timeout", None),
         }
         adapter = _TimeoutHTTPAdapter(
             **{k: v for k, v in kwargs.items() if v is not None}
@@ -102,13 +105,16 @@ class F5iControlREST:
         connection.mount("https://", adapter)
         connection.mount("http://", adapter)
 
+        # Set the host. This is used by the close method to delete the token.
+        self.host = f"{hostname}:{port}"
+
         data = {
             "username": username,
             "password": password,
-            "loginProviderName": "tmos",
+            "loginProviderName": extras.get("login_provider_name", "tmos"),
         }
         resp = connection.post(
-            f"https://{hostname}:{port}/mgmt/shared/authn/login",
+            f"https://{self.host}{LOGIN_URI}",
             json=data,
         )
         connection.headers["X-F5-Auth-Token"] = resp.json()["token"]["token"]
@@ -116,7 +122,10 @@ class F5iControlREST:
         self.connection = connection
 
     def close(self) -> None:
-        """Closes the connection."""
+        """Deletes the token and closes the connection."""
+        token = self.connection.headers.get("X-F5-Auth-Token", None)
+        if token:
+            self.connection.delete(f"https://{self.host}{LOGOUT_URI}/{token}")
         self.connection.close()
 
 

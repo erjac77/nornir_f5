@@ -1,0 +1,13 @@
+{
+  "entries": {
+    "https://localhost/mgmt/tm/sys/version/0": {
+      "nestedStats": {
+        "entries": {
+          "Version": {
+            "description": "11.6.5.2"
+          }
+        }
+      }
+    }
+  }
+}

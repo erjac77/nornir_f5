@@ -23,17 +23,11 @@ max-complexity = 10
 docstring-convention = google
 per-file-ignores = tests/*: D1, S101
 exclude =
-  .eggs,
   .git,
   .github,
-  .hg
-  .mypy_cache,
+  .idea,
   .pytest_cache,
-  .tox,
   .venv,
   .vscode,
   __pycache__,
-  setup.py,
-  build,
-  dist,
-  releases
+  htmlcov

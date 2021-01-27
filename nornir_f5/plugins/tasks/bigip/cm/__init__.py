@@ -1,7 +1,4 @@
-"""Nornir F5 CM tasks.
-
-Allows to interact with the `Configuration Management` endpoints.
-"""
+"""Nornir F5 CM tasks."""
 
 import logging
 import time
@@ -13,7 +10,7 @@ from nornir_f5.plugins.connections import f5_rest_client
 SYNC_DIRECTION_OPTIONS = ["to-group", "from-group"]
 
 
-def f5_get_failover_status(task: Task) -> Result:
+def f5_bigip_cm_failover_status(task: Task) -> Result:
     """Task to get the failover status of the device.
 
     Args:
@@ -33,7 +30,7 @@ def f5_get_failover_status(task: Task) -> Result:
     )
 
 
-def f5_get_sync_status(task: Task) -> Result:
+def f5_bigip_cm_sync_status(task: Task) -> Result:
     """Task to get the synchronization status of the device.
 
     Args:
@@ -53,7 +50,7 @@ def f5_get_sync_status(task: Task) -> Result:
     )
 
 
-def f5_sync_config(
+def f5_bigip_cm_sync_config(
     task: Task,
     device_group: str,
     delay: int = 6,
@@ -88,7 +85,7 @@ def f5_sync_config(
     """
     sync_status = task.run(
         name="Get the sync status",
-        task=f5_get_sync_status,
+        task=f5_bigip_cm_sync_status,
         severity_level=logging.DEBUG,
     ).result
 
@@ -108,7 +105,7 @@ def f5_sync_config(
             time.sleep(delay)
             sync_status = task.run(
                 name=f"Get the sync status (attempt {retry}/{retries})",
-                task=f5_get_sync_status,
+                task=f5_bigip_cm_sync_status,
                 severity_level=logging.DEBUG,
             ).result
 

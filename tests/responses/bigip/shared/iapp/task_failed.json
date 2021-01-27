@@ -1,0 +1,4 @@
+{
+  "errorMessage": "Package x version x.y.z is already installed.",
+  "status": "FAILED"
+}

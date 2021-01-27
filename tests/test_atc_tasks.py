@@ -4,13 +4,13 @@ import re
 import pytest
 
 import responses
-from nornir_f5.plugins.tasks import f5_deploy_atc
+from nornir_f5.plugins.tasks import f5_atc
 
 from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "resp", "task_id", "task_statuses", "expected"),
+    ("kwargs", "resp", "task_statuses", "expected"),
     [
         # GET declaration with show and show_hash
         (
@@ -20,12 +20,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "atc_service": "AS3",
             },
             {"status_code": 200, "data": f"{base_decl_dir}/atc/as3/simple_01.json"},
-            "",
             [""],
             {
                 "result_file": f"{base_decl_dir}/atc/as3/simple_01.json",
-                "changed": False,
-                "failed": False,
             },
         ),
         # GET declaration with invalid atc_service
@@ -35,11 +32,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "atc_service": "AS2",
             },
             {},
-            "",
             [""],
             {
                 "result": "ATC service 'AS2' is not valid.",
-                "changed": False,
                 "failed": True,
             },
         ),
@@ -54,12 +49,10 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
-            "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
             {
-                "result_file": f"{base_resp_dir}/atc/as3/task_success.json",
+                "result": "ATC declaration successfully deployed.",
                 "changed": True,
-                "failed": False,
             },
         ),
         # POST AS3 declaration from file
@@ -74,12 +67,10 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
-            "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
             {
-                "result_file": f"{base_resp_dir}/atc/as3/task_success.json",
+                "result": "ATC declaration successfully deployed.",
                 "changed": True,
-                "failed": False,
             },
         ),
         # POST AS3 declaration from url
@@ -94,12 +85,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
-            "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "no change"],
             {
-                "result_file": f"{base_resp_dir}/atc/as3/task_no_change.json",
-                "changed": False,
-                "failed": False,
+                "result": "ATC declaration successfully submitted, but no change required.",  # noqa B950
             },
         ),
         # POST AS3 declaration, failed
@@ -114,11 +102,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/as3/declaration_failed.json",
             },
-            "",
             [],
             {
-                "result": "Declaration failed.",
-                "changed": False,
+                "result": "The declaration deployment failed.",
                 "failed": True,
             },
         ),
@@ -134,11 +120,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
-            "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress"],
             {
-                "result": "The declaration deployment has reached maximum retries.",
-                "changed": False,
+                "result": "The task has reached maximum retries.",
                 "failed": True,
             },
         ),
@@ -154,11 +138,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
-            "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "failed"],
             {
-                "result": "Declaration failed.",
-                "changed": False,
+                "result": "The task failed.",
                 "failed": True,
             },
         ),
@@ -173,12 +155,10 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
-            "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
             ["in progress", "success"],
             {
-                "result_file": f"{base_resp_dir}/atc/as3/task_success.json",
+                "result": "ATC declaration successfully deployed.",
                 "changed": True,
-                "failed": False,
             },
         ),
         # PATCH AS3 declaration, invalid atc method
@@ -189,11 +169,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "atc_service": "AS3",
             },
             {},
-            "",
             [""],
             {
                 "result": "ATC method 'PATCH' is not valid.",
-                "changed": False,
                 "failed": True,
             },
         ),
@@ -201,9 +179,9 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
 )
 @pytest.mark.parametrize("as3_version", ["3.4.0", "3.22.1"])
 @responses.activate
-def test_as3_deploy(
-    nornir, kwargs, resp, task_id, task_statuses, expected, as3_version
-):
+def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
+    task_id = "4eb601c4-7f06-4fd7-b8d5-947e7b206a37"
+
     # Callback to provide dynamic task status responses
     def get_task_callback(request):
         calls = [
@@ -214,10 +192,10 @@ def test_as3_deploy(
 
         if len(calls) == 0:
             current_task_status = task_statuses[0]
-        elif len(calls) > len(task_statuses):
-            current_task_status = task_statuses[len(task_statuses) - 1]
+        elif len(calls) < len(task_statuses):
+            current_task_status = task_statuses[len(calls)]
         else:
-            current_task_status = task_statuses[len(calls) - 1]
+            current_task_status = task_statuses[len(task_statuses) - 1]
 
         return (
             200,
@@ -269,7 +247,7 @@ def test_as3_deploy(
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Deploy ATC Declaration",
-        task=f5_deploy_atc,
+        task=f5_atc,
         atc_delay=0,
         atc_retries=3,
         **kwargs,

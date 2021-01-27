@@ -3,7 +3,7 @@ import re
 
 import pytest
 from nornir import InitNornir
-from nornir.core.task import Result
+from nornir.core.task import AggregatedResult, MultiResult, Result
 
 import responses
 
@@ -17,16 +17,21 @@ def load_json(file: str) -> dict:
 
 
 def assert_result(result: Result, expected: dict):
-    for _h, r in result.items():
-        if r.exception:
-            assert str(r.exception) == expected["result"]
-        else:
-            if "result_file" in expected:
-                assert r.result == load_json(expected["result_file"])
+    if isinstance(result, AggregatedResult):
+        for _h, r in result.items():
+            assert r.changed == expected.get("changed", False)
+            assert r.failed == expected.get("failed", False)
+            if r.exception:
+                assert_result(r, expected)
             else:
-                assert r.result == expected["result"]
-        assert r.changed == expected.get("changed", False)
-        assert r.failed == expected.get("failed", False)
+                if "result_file" in expected:
+                    assert r.result == load_json(expected["result_file"])
+                else:
+                    assert r.result == expected.get("result", {})
+    elif isinstance(result, MultiResult):
+        for r in result[1:]:
+            if r.exception:
+                assert str(r.exception) == expected.get("result", {})
 
 
 # Nornir
@@ -47,10 +52,20 @@ def _reset_data(nornir):
 
 
 @pytest.fixture(autouse=True)
-def _login_responses():
+def _login_response():
     responses.add(
         responses.POST,
         re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authn/login"),
         json=load_json(f"{base_resp_dir}/bigip/shared/authn/login_success.json"),
+        status=200,
+    )
+
+
+@pytest.fixture(autouse=True)
+def _logout_response():
+    responses.add(
+        responses.DELETE,
+        re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authz/tokens"),
+        json={},
         status=200,
     )

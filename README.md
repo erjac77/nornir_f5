@@ -31,22 +31,22 @@ from nornir.core.task import Result, Task
 from nornir_utils.plugins.functions import print_result
 
 from nornir_f5.plugins.tasks import (
-    f5_deploy_atc,
-    f5_get_failover_status,
-    f5_sync_config,
+    f5_atc,
+    f5_bigip_cm_failover_status,
+    f5_bigip_cm_sync_config,
 )
 
 def as3_post(task: Task, as3_tenant: str) -> Result:
     # Get the failover status of the device.
     failover_status = task.run(
-        name="Get failover status", task=f5_get_failover_status
+        name="Get failover status", task=f5_bigip_cm_failover_status
     ).result
 
-    # If ACTIVE, send the declaration and perform a sync.
+    # If it's the ACTIVE device, send the declaration and perform a sync.
     if failover_status == "ACTIVE":
         task.run(
             name="AS3 POST",
-            task=f5_deploy_atc,
+            task=f5_atc,
             atc_method="POST",
             atc_service="AS3",
             as3_tenant=as3_tenant,
@@ -57,17 +57,17 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
         task.run(
             name="Synchronize the devices",
-            task=f5_sync_config,
+            task=f5_bigip_cm_sync_config,
             device_group=task.host["device_group"],
         )
 
         return Result(
             host=task.host,
-            result="ACTIVE device, AS3 declaration successfully deployed",
+            result="ACTIVE device, AS3 declaration successfully deployed.",
         )
     # Else, do nothing...
     else:
-        return Result(host=task.host, result="STANDBY device, skipped")
+        return Result(host=task.host, result="STANDBY device, skipped.")
 
 nr = InitNornir(config_file="config.yml")
 nr = nr.filter(platform="f5_bigip")
@@ -89,15 +89,21 @@ print_result(result)
 
 ### Tasks
 
-* __f5_deploy_atc__: Deploy F5 Automation Tool Chain (ATC) declaration (only AS3 for now) on BIG-IP systems.
-* __f5_get_failover_status__: Get the failover status of the device.
-* __f5_get_sync_status__: Get the configuration synchronization status of the device.
-* __f5_sync_config__: Synchronize the configuration between devices.
+* __f5_atc__: Deploy an F5 Automation Tool Chain (ATC) declaration (only AS3 for now) on a BIG-IP system.
+* __f5_bigip_cm_failover_status__: Get the failover status of the BIG-IP system.
+* __f5_bigip_cm_sync_config__: Synchronize the configuration between BIG-IP systems.
+* __f5_bigip_cm_sync_status__: Get the configuration synchronization status of the BIG-IP system.
+* __f5_bigip_shared_file_transfer_upload__: Upload a file to a BIG-IP system.
+* __f5_bigip_shared_iapp_lx_package__: Manage Javascript LX packages on a BIG-IP system.
+* __f5_bigip_sys_version__: Get software version information for the BIG-IP system.
+* __f5_bigip_util_unix_ls__: List information about the FILEs or directory content on a BIG-IP system.
+* __f5_bigip_util_unix_rm__: Delete a file on a BIG-IP system.
 
 ## Roadmap
 
-* Device (DO)
-* Telemetry (TS)
+* ATC - Deploy Device (DO) declarations
+* ATC - Deploy Telemetry (TS) declarations
+* Dry-run
 
 ## Authors
 

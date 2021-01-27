@@ -15,13 +15,12 @@ def test_version():
 
 @responses.activate
 def test_connection(nornir):
-    def get_toc(task: Task) -> Result:
+    def test_conn(task: Task) -> Result:
         f5_rest_client(task).get(
             f"https://{task.host.hostname}:{task.host.port}/mgmt/toc"
         )
         f5_rest_client(task).get(
-            f"https://{task.host.hostname}:{task.host.port}/mgmt/tm/ltm/virtual",
-            timeout=2,
+            f"https://{task.host.hostname}:{task.host.port}/mgmt/toc", timeout=2
         )
         task.host.close_connection(CONNECTION_NAME)
         return {}
@@ -33,15 +32,24 @@ def test_connection(nornir):
         json={},
         status=200,
     )
-    responses.add(
-        responses.GET,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/tm/ltm/virtual"),
-        json={},
-        status=200,
-    )
 
     # Run task
-    result = nornir.run(task=get_toc)
+    result = nornir.run(task=test_conn)
 
     # Assert result
-    assert_result(result, {"result": {}, "failed": False})
+    assert_result(result, {})
+
+
+@responses.activate
+def test_close_connection_without_token(nornir):
+    def test_close_conn(task: Task) -> Result:
+        conn = task.host.get_connection(CONNECTION_NAME, task.nornir.config)
+        conn.headers.pop("X-F5-Auth-Token")
+        task.host.close_connection(CONNECTION_NAME)
+        return {}
+
+    # Run task
+    result = nornir.run(task=test_close_conn)
+
+    # Assert result
+    assert_result(result, {})

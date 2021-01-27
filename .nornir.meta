@@ -1,18 +1,23 @@
 ---
 name: nornir_f5
 summary: |
-    Connection plugin and various tasks to interact with F5 systems via the iControlREST API.
+  Connection plugin and various tasks to interact with F5 systems via the iControlREST API.
 nornir_version: ~3
 categories:
   - f5
   - networking
   - bigip
-  - bigiq
+  - as3
 intro_file: README.md
 connection_plugins:
   - nornir_f5.plugins.connections.F5iControlREST
 task_plugins:
-  - nornir_f5.plugins.tasks.f5_deploy_atc
-  - nornir_f5.plugins.tasks.f5_get_failover_status
-  - nornir_f5.plugins.tasks.f5_get_sync_status
-  - nornir_f5.plugins.tasks.f5_sync_config
+  - nornir_f5.plugins.tasks.f5_atc
+  - nornir_f5.plugins.tasks.f5_bigip_cm_failover_status
+  - nornir_f5.plugins.tasks.f5_bigip_cm_sync_config
+  - nornir_f5.plugins.tasks.f5_bigip_cm_sync_status
+  - nornir_f5.plugins.tasks.f5_bigip_shared_file_transfer_upload
+  - nornir_f5.plugins.tasks.f5_bigip_shared_iapp_lx_package
+  - nornir_f5.plugins.tasks.f5_bigip_sys_version
+  - nornir_f5.plugins.tasks.f5_bigip_util_unix_ls
+  - nornir_f5.plugins.tasks.f5_bigip_util_unix_rm

@@ -1,13 +1,12 @@
 import json
-import re
 
 import pytest
 
 import responses
 from nornir_f5.plugins.tasks import (
-    f5_get_failover_status,
-    f5_get_sync_status,
-    f5_sync_config,
+    f5_bigip_cm_failover_status,
+    f5_bigip_cm_sync_config,
+    f5_bigip_cm_sync_status,
 )
 
 from .conftest import assert_result, base_resp_dir, load_json
@@ -21,7 +20,7 @@ from .conftest import assert_result, base_resp_dir, load_json
                 "status_code": 200,
                 "data": f"{base_resp_dir}/bigip/cm/failover_status_active.json",
             },
-            {"result": "ACTIVE", "changed": False, "failed": False},
+            {"result": "ACTIVE"},
         ),
     ],
 )
@@ -30,14 +29,14 @@ def test_get_failover_status(nornir, resp, expected):
     # Register mock responses
     responses.add(
         responses.GET,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/tm/cm/failover-status"),
+        "https://bigip1.localhost:443/mgmt/tm/cm/failover-status",
         json=load_json(resp["data"]),
         status=resp["status_code"],
     )
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="Failover status GET", task=f5_get_failover_status)
+    result = nornir.run(name="Failover status GET", task=f5_bigip_cm_failover_status)
 
     # Assert result
     assert_result(result, expected)
@@ -51,7 +50,7 @@ def test_get_failover_status(nornir, resp, expected):
                 "status_code": 200,
                 "data": f"{base_resp_dir}/bigip/cm/sync_status_in_sync.json",
             },
-            {"result": "In Sync", "changed": False, "failed": False},
+            {"result": "In Sync"},
         ),
     ],
 )
@@ -60,14 +59,14 @@ def test_get_sync_status(nornir, resp, expected):
     # Register mock responses
     responses.add(
         responses.GET,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/tm/cm/sync-status"),
+        "https://bigip1.localhost:443/mgmt/tm/cm/sync-status",
         json=load_json(resp["data"]),
         status=resp["status_code"],
     )
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="Sync status GET", task=f5_get_sync_status)
+    result = nornir.run(name="Sync status GET", task=f5_bigip_cm_sync_status)
 
     # Assert result
     assert_result(result, expected)
@@ -80,13 +79,13 @@ def test_get_sync_status(nornir, resp, expected):
         (
             {"direction": "to-group"},
             ["Changes Pending", "Not All Devices Synced", "In Sync"],
-            {"result": "In Sync", "changed": True, "failed": False},
+            {"result": "In Sync", "changed": True},
         ),
         # No sync, standalone
         (
             {},
             ["Standalone"],
-            {"result": "Standalone", "changed": False, "failed": False},
+            {"result": "Standalone"},
         ),
         # Fail sync, invalid direction
         (
@@ -94,7 +93,6 @@ def test_get_sync_status(nornir, resp, expected):
             ["Changes Pending"],
             {
                 "result": "Direction 'invalid' is not valid.",
-                "changed": False,
                 "failed": True,
             },
         ),
@@ -104,7 +102,6 @@ def test_get_sync_status(nornir, resp, expected):
             ["Disconnected"],
             {
                 "result": "The configuration synchronization has failed (Disconnected).",  # noqa B950
-                "changed": False,
                 "failed": True,
             },
         ),
@@ -114,7 +111,6 @@ def test_get_sync_status(nornir, resp, expected):
             ["Changes Pending", "Changes Pending", "Not All Devices Synced"],
             {
                 "result": "The configuration synchronization has reached maximum retries (Not All Devices Synced).",  # noqa B950
-                "changed": False,
                 "failed": True,
             },
         ),
@@ -151,12 +147,12 @@ def test_post_sync_config(nornir, kwargs, sync_statuses, expected):
     # Register mock responses
     responses.add_callback(
         responses.GET,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/tm/cm/sync-status"),
+        "https://bigip1.localhost:443/mgmt/tm/cm/sync-status",
         callback=get_sync_status_callback,
     )
     responses.add(
         responses.POST,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/tm/cm"),
+        "https://bigip1.localhost:443/mgmt/tm/cm",
         status=200,
     )
 
@@ -164,7 +160,7 @@ def test_post_sync_config(nornir, kwargs, sync_statuses, expected):
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Sync config",
-        task=f5_sync_config,
+        task=f5_bigip_cm_sync_config,
         delay=0,
         device_group="device_sync_group",
         retries=3,

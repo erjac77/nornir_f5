@@ -9,8 +9,6 @@ Todo:
 """
 
 import json
-
-# import subprocess
 import time
 from urllib.parse import urlencode
 
@@ -60,9 +58,9 @@ def _build_as3_endpoint(
     atc_config_endpoint: str,
     atc_method: str,
     as3_version: str,
+    as3_tenant: str = "",
     as3_show: str = "",
     as3_show_hash: bool = False,
-    as3_tenant: str = "",
 ) -> str:
     # Setup AS3 endpoint with specified tenant when tenant specified
     if as3_tenant and (
@@ -101,84 +99,62 @@ def _build_as3_endpoint(
     return atc_config_endpoint
 
 
-def _declare(
+def _send(
+    task: Task,
     atc_config_endpoint: str,
-    atc_declaration: str,
     atc_method: str,
     atc_service: str,
-    task: Task,
-) -> dict:
-    url = f"https://{task.host.hostname}:{task.host.port}{atc_config_endpoint}"
+    atc_declaration: str,
+) -> Result:
+    client = f5_rest_client(task)
+    host = f"{task.host.hostname}:{task.host.port}"
+    url = f"https://{host}{atc_config_endpoint}"
 
     # AS3
     if atc_service == "AS3" and atc_method in ["POST", "DELETE"]:
         if atc_method == "POST":
-            resp = f5_rest_client(task).post(url, json=atc_declaration)
+            resp = client.post(url, json=atc_declaration)
         if atc_method == "DELETE":
-            resp = f5_rest_client(task).delete(url)
+            resp = client.delete(url)
 
         message = resp.json()["results"][0]["message"]
         if message != "Declaration successfully submitted":
-            raise Exception("Declaration failed.")
+            raise Exception("The declaration deployment failed.")
 
     # GET
     if atc_method == "GET":
-        resp = f5_rest_client(task).get(url)
+        resp = client.get(url)
 
-    return resp.json()
+    return Result(host=task.host, result=resp.json())
 
 
-def _check_task_bigip(
-    atc_method: str,
-    atc_service: str,
+def _wait_task(
+    task: Task,
     atc_task_endpoint: str,
     atc_task_id: str,
-    task: Task,
     atc_delay: int = 10,
     atc_retries: int = 30,
-    retry: int = 0,
-) -> dict:
-    # AS3
-    # if atc_service == "AS3" and atc_method in ["POST", "DELETE"]:
-    resp = f5_rest_client(task).get(
-        f"https://{task.host.name}:{task.host.port}{atc_task_endpoint}/{atc_task_id}"
-    )
-    message = resp.json()["results"][0]["message"]
+) -> Result:
+    client = f5_rest_client(task)
+    host = f"{task.host.hostname}:{task.host.port}"
 
-    if message in ["in progress"]:
-        if retry < atc_retries:
-            time.sleep(atc_delay)
-            retry += 1
-            return _check_task_bigip(
-                atc_delay=atc_delay,
-                atc_method=atc_method,
-                atc_retries=atc_retries,
-                atc_service=atc_service,
-                atc_task_endpoint=atc_task_endpoint,
-                atc_task_id=atc_task_id,
-                retry=retry,
-                task=task,
-            )
+    for _i in range(0, atc_retries):
+        atc_task_resp = client.get(f"https://{host}{atc_task_endpoint}/{atc_task_id}")
+        message = atc_task_resp.json()["results"][0]["message"]
+        if message == "in progress":
+            pass
+        elif message == "success":
+            return Result(host=task.host, changed=True, result=message)
+        elif message == "no change":
+            return Result(host=task.host, result=message)
         else:
-            raise Exception("The declaration deployment has reached maximum retries.")
-    else:
-        if message in ["success", "no change"]:
-            return resp.json()
-        raise Exception("Declaration failed.")
+            raise Exception("The task failed.")
+        time.sleep(atc_delay)
+
+    raise Exception("The task has reached maximum retries.")
 
 
-# def check_rpm_tool(task: Task) -> Result:
-#     command = ["rpm", "--version", "warn=False"]
-#     sp = subprocess.Popen(command)
-#     sp.wait()
-
-#     if sp.returncode == 0:
-#         return Result(host=task.host, result="RPM is installed.")
-#     else:
-#         raise Exception("RPM is not installed!")
-
-
-def f5_deploy_atc(
+def f5_atc(
     task: Task,
     as3_show: str = "base",
     as3_show_hash: bool = False,
@@ -251,6 +227,8 @@ def f5_deploy_atc(
     ):
         raise Exception(f"ATC method '{atc_method}' is not valid.")
 
+    host = f"{task.host.hostname}:{task.host.port}"
+
     # Set ATC endpoints
     atc_config_endpoint = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["uri"]
     atc_info_endpoint = ATC_COMPONENTS[atc_service]["endpoints"]["info"]["uri"]
@@ -258,13 +236,10 @@ def f5_deploy_atc(
 
     # Verify ATC service is available, and collect service info
     atc_service_info = (
-        f5_rest_client(task)
-        .get(f"https://{task.host.hostname}:{task.host.port}{atc_info_endpoint}")
-        .json()
+        f5_rest_client(task).get(f"https://{host}{atc_info_endpoint}").json()
     )
 
     # Build AS3 endpoint
-    # if atc_service == "AS3":
     atc_config_endpoint = _build_as3_endpoint(
         as3_tenant=as3_tenant,
         as3_version=atc_service_info["version"],
@@ -275,29 +250,34 @@ def f5_deploy_atc(
     )
 
     # Send the declaration
-    atc_declare_resp = _declare(
+    atc_send_result = task.run(
+        name="Send the declaration",
+        task=_send,
         atc_config_endpoint=atc_config_endpoint,
         atc_declaration=atc_declaration,
         atc_method=atc_method,
         atc_service=atc_service,
-        task=task,
-    )
+    ).result
 
     # If 'atc_method' is 'GET', return the declaration
     if atc_method == "GET":
-        return Result(host=task.host, result=atc_declare_resp)
+        return Result(host=task.host, result=atc_send_result)
 
     # Wait for task to complete
-    atc_task_resp = _check_task_bigip(
+    task_result = task.run(
+        name="Wait for task to complete",
+        task=_wait_task,
         atc_delay=atc_delay,
-        atc_method=atc_method,
         atc_retries=atc_retries,
-        atc_service=atc_service,
         atc_task_endpoint=atc_task_endpoint,
-        atc_task_id=atc_declare_resp["id"],
-        task=task,
-    )
+        atc_task_id=atc_send_result["id"],
+    ).result
 
-    if atc_task_resp["results"][0]["message"] == "no change":
-        return Result(host=task.host, result=atc_task_resp)
-    return Result(host=task.host, changed=True, result=atc_task_resp)
+    if task_result == "no change":
+        return Result(
+            host=task.host,
+            result="ATC declaration successfully submitted, but no change required.",
+        )
+    return Result(
+        host=task.host, changed=True, result="ATC declaration successfully deployed."
+    )

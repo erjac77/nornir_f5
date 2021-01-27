@@ -1,4 +1,4 @@
-"""Nornir connections plugins."""
+"""Nornir F5 connections."""
 
 from nornir_f5.plugins.connections.f5 import (
     CONNECTION_NAME,
