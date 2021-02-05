@@ -1,10 +1,8 @@
-"""Nornir F5 ATC tasks.
+"""Nornir F5 Automation Tool Chain (ATC) tasks.
 
-Allows to deploy F5 Automation Tool Chain (ATC) declaration (AS3, DO, TS)
-on BIG-IP systems.
+Allows to deploy F5 ATC declarations (AS3, DO, TS) on BIG-IP systems.
 
 Todo:
-    * Device
     * Telemetry
 """
 
@@ -29,18 +27,22 @@ ATC_COMPONENTS = {
             "task": {"uri": "/mgmt/shared/appsvcs/task", "methods": ["GET"]},
         },
     },
-    # "Device": {
-    #     "endpoints": {
-    #         "configure": {
-    #             "uri": "/mgmt/shared/declarative-onboarding",
-    #             "methods": ["GET", "POST"],
-    #         },
-    #         "info": {
-    #             "uri": "/mgmt/shared/declarative-onboarding/info",
-    #             "methods": ["GET"],
-    #         },
-    #     }
-    # },
+    "Device": {
+        "endpoints": {
+            "configure": {
+                "uri": "/mgmt/shared/declarative-onboarding",
+                "methods": ["GET", "POST"],
+            },
+            "info": {
+                "uri": "/mgmt/shared/declarative-onboarding/info",
+                "methods": ["GET"],
+            },
+            "task": {
+                "uri": "/mgmt/shared/declarative-onboarding/task",
+                "methods": ["GET"],
+            },
+        }
+    },
     # "Telemetry": {
     #     "endpoints": {
     #         "configure": {
@@ -51,7 +53,7 @@ ATC_COMPONENTS = {
     #     }
     # },
 }
-ATC_SERVICE_OPTIONS = ["AS3"]  # , "Device", "Telemetry"]
+ATC_SERVICE_OPTIONS = ["AS3", "Device"]  # , "Telemetry"]
 
 
 def _build_as3_endpoint(
@@ -121,6 +123,10 @@ def _send(
         if message != "Declaration successfully submitted":
             raise Exception("The declaration deployment failed.")
 
+    # Device
+    if atc_service == "Device" and atc_method == "POST":
+        resp = client.post(url, json=atc_declaration)
+
     # GET
     if atc_method == "GET":
         resp = client.get(url)
@@ -139,9 +145,16 @@ def _wait_task(
     host = f"{task.host.hostname}:{task.host.port}"
 
     for _i in range(0, atc_retries):
-        atc_task_resp = client.get(f"https://{host}{atc_task_endpoint}/{atc_task_id}")
-        message = atc_task_resp.json()["results"][0]["message"]
-        if message == "in progress":
+        atc_task_resp = client.get(
+            f"https://{host}{atc_task_endpoint}/{atc_task_id}"
+        ).json()
+
+        if "results" in atc_task_resp:
+            message = atc_task_resp["results"][0]["message"]
+        else:
+            message = atc_task_resp["result"]["message"]
+
+        if message in ["in progress", "processing"]:
             pass
         elif message == "success":
             return Result(host=task.host, changed=True, result=message)
@@ -221,37 +234,37 @@ def f5_atc(
         raise Exception(f"ATC service '{atc_service}' is not valid.")
 
     # Validate ATC method
-    if (
-        atc_method
-        not in ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["methods"]
-    ):
+    atc_methods = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["methods"]
+    if atc_method not in atc_methods:
         raise Exception(f"ATC method '{atc_method}' is not valid.")
 
+    # Set host
     host = f"{task.host.hostname}:{task.host.port}"
-
-    # Set ATC endpoints
-    atc_config_endpoint = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["uri"]
-    atc_info_endpoint = ATC_COMPONENTS[atc_service]["endpoints"]["info"]["uri"]
-    atc_task_endpoint = ATC_COMPONENTS[atc_service]["endpoints"]["task"]["uri"]
 
     # Verify ATC service is available, and collect service info
     atc_service_info = (
-        f5_rest_client(task).get(f"https://{host}{atc_info_endpoint}").json()
+        f5_rest_client(task)
+        .get(f"https://{host}{ATC_COMPONENTS[atc_service]['endpoints']['info']['uri']}")
+        .json()
     )
 
+    # Set ATC config endpoint
+    atc_config_endpoint = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["uri"]
+
     # Build AS3 endpoint
-    atc_config_endpoint = _build_as3_endpoint(
-        as3_tenant=as3_tenant,
-        as3_version=atc_service_info["version"],
-        as3_show=as3_show,
-        as3_show_hash=as3_show_hash,
-        atc_config_endpoint=atc_config_endpoint,
-        atc_method=atc_method,
-    )
+    if atc_service == "AS3":
+        atc_config_endpoint = _build_as3_endpoint(
+            as3_tenant=as3_tenant,
+            as3_version=atc_service_info["version"],
+            as3_show=as3_show,
+            as3_show_hash=as3_show_hash,
+            atc_config_endpoint=atc_config_endpoint,
+            atc_method=atc_method,
+        )
 
     # Send the declaration
     atc_send_result = task.run(
-        name="Send the declaration",
+        name=f"{atc_method} the declaration",
         task=_send,
         atc_config_endpoint=atc_config_endpoint,
         atc_declaration=atc_declaration,
@@ -269,7 +282,7 @@ def f5_atc(
         task=_wait_task,
         atc_delay=atc_delay,
         atc_retries=atc_retries,
-        atc_task_endpoint=atc_task_endpoint,
+        atc_task_endpoint=ATC_COMPONENTS[atc_service]["endpoints"]["task"]["uri"],
         atc_task_id=atc_send_result["id"],
     ).result
 
@@ -278,6 +291,7 @@ def f5_atc(
             host=task.host,
             result="ATC declaration successfully submitted, but no change required.",
         )
+
     return Result(
         host=task.host, changed=True, result="ATC declaration successfully deployed."
     )

@@ -12,7 +12,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
 @pytest.mark.parametrize(
     ("kwargs", "resp", "task_statuses", "expected"),
     [
-        # GET declaration with show and show_hash
+        # GET AS3 declaration with show and show_hash
         (
             {
                 "as3_show": "full",
@@ -208,26 +208,24 @@ def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
         )
 
     # Register mock responses
-    # GET declaration from url
+    # GET AS3 declaration from url
     responses.add(
         responses.GET,
         "https://test.com/simple_01.json",
         json=load_json(f"{base_decl_dir}/atc/as3/simple_01.json"),
         status=200,
     )
-    # GET info
+    # GET AS3 info
     responses.add(
         responses.GET,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/shared/appsvcs/info"),
+        "https://bigip1.localhost:443/mgmt/shared/appsvcs/info",
         json=load_json(f"{base_resp_dir}/atc/as3/version_{as3_version}.json"),
         status=200,
     )
-    # GET task
+    # GET AS3 task
     responses.add_callback(
         responses.GET,
-        re.compile(
-            "https://bigip(1|2).localhost:443/mgmt/shared/appsvcs/task/4eb601c4-7f06-4fd7-b8d5-947e7b206a37"  # noqa B950
-        ),
+        f"https://bigip1.localhost:443/mgmt/shared/appsvcs/task/{task_id}",
         callback=get_task_callback,
     )
 
@@ -236,7 +234,7 @@ def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
         responses.add(
             kwargs["atc_method"] if "atc_method" in kwargs else "GET",
             re.compile(
-                "https://bigip(1|2).localhost:443/mgmt/shared/appsvcs/declare(/Simple_01)?"  # noqa B950
+                "https://bigip1.localhost:443/mgmt/shared/appsvcs/declare(/Simple_01)?"
             ),
             match_querystring=False,
             json=responses_data,
@@ -246,7 +244,97 @@ def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
-        name="Deploy ATC Declaration",
+        name="Deploy AS3 Declaration",
+        task=f5_atc,
+        atc_delay=0,
+        atc_retries=3,
+        **kwargs,
+    )
+
+    # Assert result
+    assert_result(result, expected)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "resp", "task_statuses", "expected"),
+    [
+        # POST DO declaration from file
+        (
+            {
+                "atc_declaration_file": f"{base_decl_dir}/atc/device/basic.json",
+                "atc_method": "POST",
+                "atc_service": "Device",
+            },
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/atc/device/task_processing.json",
+            },
+            ["processing", "success"],
+            {
+                "result": "ATC declaration successfully deployed.",
+                "changed": True,
+            },
+        ),
+    ],
+)
+@responses.activate
+def test_do_deploy(nornir, kwargs, resp, task_statuses, expected):
+    task_id = "5eb601c4-7f06-4fd7-b8d5-947e7b206a38"
+
+    # Callback to provide dynamic task status responses
+    def get_task_callback(request):
+        calls = [
+            d
+            for d in responses.calls
+            if f"/mgmt/shared/declarative-onboarding/task/{task_id}" in d.request.url
+        ]
+
+        if len(calls) == 0:
+            current_task_status = task_statuses[0]
+        elif len(calls) < len(task_statuses):
+            current_task_status = task_statuses[len(calls)]
+        else:
+            current_task_status = task_statuses[len(task_statuses) - 1]
+
+        return (
+            200,
+            {},
+            json.dumps(
+                load_json(
+                    f"{base_resp_dir}/atc/device/task_{current_task_status.replace(' ', '_').lower()}.json"  # noqa B950
+                )
+            ),
+        )
+
+    # Register mock responses
+    # GET DO info
+    responses.add(
+        responses.GET,
+        "https://bigip1.localhost:443/mgmt/shared/declarative-onboarding/info",
+        json=load_json(f"{base_resp_dir}/atc/device/version_3.22.1.json"),
+        status=200,
+    )
+    # GET DO task
+    responses.add_callback(
+        responses.GET,
+        f"https://bigip1.localhost:443/mgmt/shared/declarative-onboarding/task/{task_id}",  # noqa B950
+        callback=get_task_callback,
+    )
+
+    if resp:
+        responses_data = load_json(resp["data"])
+        responses.add(
+            kwargs["atc_method"] if "atc_method" in kwargs else "GET",
+            "https://bigip1.localhost:443/mgmt/shared/declarative-onboarding",
+            match_querystring=False,
+            json=responses_data,
+            status=resp["status_code"],
+        )
+
+    # Run task
+    nornir = nornir.filter(name="bigip1.localhost")
+    result = nornir.run(
+        name="Deploy DO Declaration",
         task=f5_atc,
         atc_delay=0,
         atc_retries=3,

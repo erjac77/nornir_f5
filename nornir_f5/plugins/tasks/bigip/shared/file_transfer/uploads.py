@@ -1,4 +1,4 @@
-"""Nornir F5 Upload tasks."""
+"""Nornir F5 Uploads tasks."""
 import os
 
 from nornir.core.task import Result, Task
@@ -51,7 +51,7 @@ def _upload_file(
     return Result(host=task.host, result="The file was uploaded successfully.")
 
 
-def f5_bigip_shared_file_transfer_upload(
+def f5_bigip_shared_file_transfer_uploads(
     task: Task, local_file_path: str, destination_file_name: str = None
 ) -> Result:
     """Upload a file to a BIG-IP system using the iControl REST API.

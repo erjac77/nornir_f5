@@ -6,15 +6,13 @@ from nornir.core.task import Result, Task
 from packaging.version import Version
 
 from nornir_f5.plugins.connections import f5_rest_client
-from nornir_f5.plugins.tasks.bigip.shared.file_transfer.upload import (
+from nornir_f5.plugins.tasks.bigip.shared.file_transfer.uploads import (
     FILE_TRANSFER_OPTIONS,
-    f5_bigip_shared_file_transfer_upload,
+    f5_bigip_shared_file_transfer_uploads,
 )
-from nornir_f5.plugins.tasks.bigip.sys import f5_bigip_sys_version
-from nornir_f5.plugins.tasks.bigip.util import (
-    f5_bigip_util_unix_ls,
-    f5_bigip_util_unix_rm,
-)
+from nornir_f5.plugins.tasks.bigip.sys.version import f5_bigip_sys_version
+from nornir_f5.plugins.tasks.bigip.util.unix_ls import f5_bigip_util_unix_ls
+from nornir_f5.plugins.tasks.bigip.util.unix_rm import f5_bigip_util_unix_rm
 
 
 def _wait_task(
@@ -93,7 +91,7 @@ def f5_bigip_shared_iapp_lx_package(
             # Upload the RPM on the BIG-IP
             task.run(
                 name="Upload the RPM on the BIG-IP",
-                task=f5_bigip_shared_file_transfer_upload,
+                task=f5_bigip_shared_file_transfer_uploads,
                 local_file_path=package,
             )
 

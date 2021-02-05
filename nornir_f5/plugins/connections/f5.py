@@ -113,10 +113,7 @@ class F5iControlREST:
             "password": password,
             "loginProviderName": extras.get("login_provider_name", "tmos"),
         }
-        resp = connection.post(
-            f"https://{self.host}{LOGIN_URI}",
-            json=data,
-        )
+        resp = connection.post(f"https://{self.host}{LOGIN_URI}", json=data)
         connection.headers["X-F5-Auth-Token"] = resp.json()["token"]["token"]
 
         self.connection = connection

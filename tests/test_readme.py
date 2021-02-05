@@ -8,8 +8,8 @@ from nornir_utils.plugins.functions import print_result
 import responses
 from nornir_f5.plugins.tasks import (
     f5_atc,
+    f5_bigip_cm_config_sync,
     f5_bigip_cm_failover_status,
-    f5_bigip_cm_sync_config,
 )
 
 from .conftest import base_resp_dir, load_json
@@ -36,7 +36,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
         task.run(
             name="Synchronize the devices",
-            task=f5_bigip_cm_sync_config,
+            task=f5_bigip_cm_config_sync,
             delay=0,
             device_group=task.host["device_group"],
             retries=3,

@@ -5,7 +5,7 @@ import pytest
 
 import responses
 from nornir_f5.plugins.tasks import (
-    f5_bigip_shared_file_transfer_upload,
+    f5_bigip_shared_file_transfer_uploads,
     f5_bigip_shared_iapp_lx_package,
 )
 
@@ -65,7 +65,7 @@ def test_upload_file(nornir, kwargs, resp, expected):
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Upload file",
-        task=f5_bigip_shared_file_transfer_upload,
+        task=f5_bigip_shared_file_transfer_uploads,
         **kwargs,
     )
 

@@ -7,7 +7,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![GitHub license](https://img.shields.io/github/license/erjac77/nornir_f5.svg)](https://github.com/erjac77/nornir_f5/blob/master/LICENSE)
 
-F5 plugins for Nornir.
+Connection plugin and various tasks to interact with F5 systems via the iControlREST API.
 
 ## Installation
 
@@ -32,8 +32,8 @@ from nornir_utils.plugins.functions import print_result
 
 from nornir_f5.plugins.tasks import (
     f5_atc,
+    f5_bigip_cm_config_sync,
     f5_bigip_cm_failover_status,
-    f5_bigip_cm_sync_config,
 )
 
 def as3_post(task: Task, as3_tenant: str) -> Result:
@@ -57,7 +57,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
         task.run(
             name="Synchronize the devices",
-            task=f5_bigip_cm_sync_config,
+            task=f5_bigip_cm_config_sync,
             device_group=task.host["device_group"],
         )
 
@@ -89,11 +89,11 @@ print_result(result)
 
 ### Tasks
 
-* __f5_atc__: Deploy an F5 Automation Tool Chain (ATC) declaration (only AS3 for now) on a BIG-IP system.
+* __f5_atc__: Deploy an F5 Automation Tool Chain (ATC) declaration (AS3, DO and TS*) on a BIG-IP system.
+* __f5_bigip_cm_config_sync__: Synchronize the configuration between BIG-IP systems.
 * __f5_bigip_cm_failover_status__: Get the failover status of the BIG-IP system.
-* __f5_bigip_cm_sync_config__: Synchronize the configuration between BIG-IP systems.
 * __f5_bigip_cm_sync_status__: Get the configuration synchronization status of the BIG-IP system.
-* __f5_bigip_shared_file_transfer_upload__: Upload a file to a BIG-IP system.
+* __f5_bigip_shared_file_transfer_uploads__: Upload a file to a BIG-IP system.
 * __f5_bigip_shared_iapp_lx_package__: Manage Javascript LX packages on a BIG-IP system.
 * __f5_bigip_sys_version__: Get software version information for the BIG-IP system.
 * __f5_bigip_util_unix_ls__: List information about the FILEs or directory content on a BIG-IP system.
@@ -101,9 +101,10 @@ print_result(result)
 
 ## Roadmap
 
-* ATC - Deploy Device (DO) declarations
-* ATC - Deploy Telemetry (TS) declarations
-* Dry-run
+* ATC:
+  * *Support Telemetry (TS)
+  * Support BIG-IQ
+* Support dry-run mode
 
 ## Authors
 

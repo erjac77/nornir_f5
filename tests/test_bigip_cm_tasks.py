@@ -4,8 +4,8 @@ import pytest
 
 import responses
 from nornir_f5.plugins.tasks import (
+    f5_bigip_cm_config_sync,
     f5_bigip_cm_failover_status,
-    f5_bigip_cm_sync_config,
     f5_bigip_cm_sync_status,
 )
 
@@ -117,7 +117,7 @@ def test_get_sync_status(nornir, resp, expected):
     ],
 )
 @responses.activate
-def test_post_sync_config(nornir, kwargs, sync_statuses, expected):
+def test_post_config_sync(nornir, kwargs, sync_statuses, expected):
     last_sync_status = sync_statuses[len(sync_statuses) - 1]
 
     # Callback to provide dynamic sync status responses
@@ -160,7 +160,7 @@ def test_post_sync_config(nornir, kwargs, sync_statuses, expected):
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Sync config",
-        task=f5_bigip_cm_sync_config,
+        task=f5_bigip_cm_config_sync,
         delay=0,
         device_group="device_sync_group",
         retries=3,
