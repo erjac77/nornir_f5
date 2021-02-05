@@ -56,7 +56,7 @@ def _logging_hook(response: Response, *args, **kwargs) -> None:
     print(data.decode("utf-8"))
 
 
-class F5iControlREST:
+class F5RestClient:
     """Connection plugin for F5 BIG-IP systems.
 
     This plugin allows to make calls to an F5 REST server.
@@ -126,13 +126,13 @@ class F5iControlREST:
         self.connection.close()
 
 
-def f5_rest_client(task: Task) -> F5iControlREST:
+def f5_rest_client(task: Task) -> F5RestClient:
     """Returns a REST client to interact with F5 devices.
 
     Args:
         task (Task): The Nornir task.
 
     Returns:
-        F5iControlREST: The F5 `iControlREST` client.
+        F5RestClient: The F5 REST client.
     """
     return task.host.get_connection(CONNECTION_NAME, task.nornir.config)

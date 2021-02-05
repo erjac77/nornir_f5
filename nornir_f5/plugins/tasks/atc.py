@@ -1,4 +1,4 @@
-"""Nornir F5 Automation Tool Chain (ATC) tasks.
+"""Nornir F5 Automation Toolchain (ATC) tasks.
 
 Allows to deploy F5 ATC declarations (AS3, DO, TS) on BIG-IP systems.
 

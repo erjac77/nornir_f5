@@ -7,7 +7,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![GitHub license](https://img.shields.io/github/license/erjac77/nornir_f5.svg)](https://github.com/erjac77/nornir_f5/blob/master/LICENSE)
 
-Connection plugin and various tasks to interact with F5 systems via the iControlREST API.
+Collection of Nornir plugins to interact with F5 systems and deploy declaratives to F5 Automation Toolchain (ATC) services like AS3, DO, and TS.
 
 ## Installation
 
@@ -85,11 +85,11 @@ print_result(result)
 
 ### Connections
 
-* __f5__: Connect to F5 BIG-IP systems using iControl REST.
+* __f5__: Connect to F5 BIG-IP systems using REST APIs.
 
 ### Tasks
 
-* __f5_atc__: Deploy an F5 Automation Tool Chain (ATC) declaration (AS3, DO and TS*) on a BIG-IP system.
+* __f5_atc__: Deploy an F5 Automation Toolchain (ATC) declaration (AS3, DO and TS*) on a BIG-IP system.
 * __f5_bigip_cm_config_sync__: Synchronize the configuration between BIG-IP systems.
 * __f5_bigip_cm_failover_status__: Get the failover status of the BIG-IP system.
 * __f5_bigip_cm_sync_status__: Get the configuration synchronization status of the BIG-IP system.

@@ -1,7 +1,8 @@
 ---
 name: nornir_f5
 summary: |
-  Connection plugin and various tasks to interact with F5 systems via the iControlREST API.
+  Collection of Nornir plugins to interact with F5 systems and deploy declaratives
+  to F5 Automation Toolchain (ATC) services like AS3, DO, and TS.
 nornir_version: ~3
 categories:
   - f5
@@ -10,7 +11,7 @@ categories:
   - as3
 intro_file: README.md
 connection_plugins:
-  - nornir_f5.plugins.connections.F5iControlREST
+  - nornir_f5.plugins.connections.F5RestClient
 task_plugins:
   - nornir_f5.plugins.tasks.f5_atc
   - nornir_f5.plugins.tasks.f5_bigip_cm_failover_status
