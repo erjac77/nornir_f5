@@ -51,7 +51,7 @@ def _upload_file(
     return Result(host=task.host, result="The file was uploaded successfully.")
 
 
-def f5_bigip_shared_file_transfer_uploads(
+def bigip_shared_file_transfer_uploads(
     task: Task, local_file_path: str, destination_file_name: str = None
 ) -> Result:
     """Upload a file to a BIG-IP system using the iControl REST API.
@@ -63,7 +63,7 @@ def f5_bigip_shared_file_transfer_uploads(
             on the remote device.
 
     Returns:
-        Result: True if the upload was succesful.
+        Result: The result of the task.
     """
     host = f"{task.host.hostname}:{task.host.port}"
     uri = f"{FILE_TRANSFER_OPTIONS['file']['endpoints']['uploads']['uri']}"

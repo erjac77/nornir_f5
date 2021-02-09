@@ -1,7 +1,7 @@
 import pytest
 
 import responses
-from nornir_f5.plugins.tasks import f5_bigip_util_unix_ls, f5_bigip_util_unix_rm
+from nornir_f5.plugins.tasks import bigip_util_unix_ls, bigip_util_unix_rm
 
 from .conftest import assert_result, base_resp_dir, load_json
 
@@ -47,7 +47,7 @@ def test_list_files(nornir, file, resp, expected):
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="List files", task=f5_bigip_util_unix_ls, file_path=file)
+    result = nornir.run(name="List files", task=bigip_util_unix_ls, file_path=file)
 
     # Assert result
     assert_result(result, expected)
@@ -77,7 +77,7 @@ def test_remove_file(nornir, file, resp, expected):
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="Remove file", task=f5_bigip_util_unix_rm, file_path=file)
+    result = nornir.run(name="Remove file", task=bigip_util_unix_rm, file_path=file)
 
     # Assert result
     assert_result(result, expected)

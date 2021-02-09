@@ -5,8 +5,8 @@ import pytest
 
 import responses
 from nornir_f5.plugins.tasks import (
-    f5_bigip_shared_file_transfer_uploads,
-    f5_bigip_shared_iapp_lx_package,
+    bigip_shared_file_transfer_uploads,
+    bigip_shared_iapp_lx_package,
 )
 
 from .conftest import assert_result, base_resp_dir, load_json
@@ -65,7 +65,7 @@ def test_upload_file(nornir, kwargs, resp, expected):
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Upload file",
-        task=f5_bigip_shared_file_transfer_uploads,
+        task=bigip_shared_file_transfer_uploads,
         **kwargs,
     )
 
@@ -263,7 +263,7 @@ def test_lx_package(
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Manage LX package",
-        task=f5_bigip_shared_iapp_lx_package,
+        task=bigip_shared_iapp_lx_package,
         delay=0,
         retries=3,
         **kwargs,

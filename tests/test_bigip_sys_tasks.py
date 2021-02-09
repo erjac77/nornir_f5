@@ -1,7 +1,7 @@
 import pytest
 
 import responses
-from nornir_f5.plugins.tasks import f5_bigip_sys_version
+from nornir_f5.plugins.tasks import bigip_sys_version
 
 from .conftest import assert_result, base_resp_dir, load_json
 
@@ -30,7 +30,7 @@ def test_get_version(nornir, resp, expected):
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="Systen version GET", task=f5_bigip_sys_version)
+    result = nornir.run(name="Systen version GET", task=bigip_sys_version)
 
     # Assert result
     assert_result(result, expected)

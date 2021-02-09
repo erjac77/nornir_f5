@@ -60,9 +60,9 @@ def _build_as3_endpoint(
     atc_config_endpoint: str,
     atc_method: str,
     as3_version: str,
-    as3_tenant: str = "",
     as3_show: str = "",
     as3_show_hash: bool = False,
+    as3_tenant: str = "",
 ) -> str:
     # Setup AS3 endpoint with specified tenant when tenant specified
     if as3_tenant and (
@@ -167,7 +167,7 @@ def _wait_task(
     raise Exception("The task has reached maximum retries.")
 
 
-def f5_atc(
+def atc(
     task: Task,
     as3_show: str = "base",
     as3_show_hash: bool = False,

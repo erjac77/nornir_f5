@@ -5,7 +5,7 @@ from nornir.core.task import Result, Task
 from nornir_f5.plugins.connections import f5_rest_client
 
 
-def f5_bigip_sys_version(task: Task) -> Result:
+def bigip_sys_version(task: Task) -> Result:
     """Gets the system version of the BIG-IP.
 
     Args:

@@ -6,12 +6,12 @@ import time
 from nornir.core.task import Result, Task
 
 from nornir_f5.plugins.connections import f5_rest_client
-from nornir_f5.plugins.tasks.bigip.cm.sync_status import f5_bigip_cm_sync_status
+from nornir_f5.plugins.tasks.bigip.cm.sync_status import bigip_cm_sync_status
 
 SYNC_DIRECTION_OPTIONS = ["to-group", "from-group"]
 
 
-def f5_bigip_cm_config_sync(
+def bigip_cm_config_sync(
     task: Task,
     device_group: str,
     delay: int = 6,
@@ -46,7 +46,7 @@ def f5_bigip_cm_config_sync(
     """
     sync_status = task.run(
         name="Get the sync status",
-        task=f5_bigip_cm_sync_status,
+        task=bigip_cm_sync_status,
         severity_level=logging.DEBUG,
     ).result
 
@@ -66,7 +66,7 @@ def f5_bigip_cm_config_sync(
             time.sleep(delay)
             sync_status = task.run(
                 name=f"Get the sync status (attempt {retry}/{retries})",
-                task=f5_bigip_cm_sync_status,
+                task=bigip_cm_sync_status,
                 severity_level=logging.DEBUG,
             ).result
 

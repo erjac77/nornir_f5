@@ -4,9 +4,9 @@ import pytest
 
 import responses
 from nornir_f5.plugins.tasks import (
-    f5_bigip_cm_config_sync,
-    f5_bigip_cm_failover_status,
-    f5_bigip_cm_sync_status,
+    bigip_cm_config_sync,
+    bigip_cm_failover_status,
+    bigip_cm_sync_status,
 )
 
 from .conftest import assert_result, base_resp_dir, load_json
@@ -36,7 +36,7 @@ def test_get_failover_status(nornir, resp, expected):
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="Failover status GET", task=f5_bigip_cm_failover_status)
+    result = nornir.run(name="Failover status GET", task=bigip_cm_failover_status)
 
     # Assert result
     assert_result(result, expected)
@@ -66,7 +66,7 @@ def test_get_sync_status(nornir, resp, expected):
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="Sync status GET", task=f5_bigip_cm_sync_status)
+    result = nornir.run(name="Sync status GET", task=bigip_cm_sync_status)
 
     # Assert result
     assert_result(result, expected)
@@ -160,7 +160,7 @@ def test_post_config_sync(nornir, kwargs, sync_statuses, expected):
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Sync config",
-        task=f5_bigip_cm_config_sync,
+        task=bigip_cm_config_sync,
         delay=0,
         device_group="device_sync_group",
         retries=3,

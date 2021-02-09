@@ -31,22 +31,22 @@ from nornir.core.task import Result, Task
 from nornir_utils.plugins.functions import print_result
 
 from nornir_f5.plugins.tasks import (
-    f5_atc,
-    f5_bigip_cm_config_sync,
-    f5_bigip_cm_failover_status,
+    atc,
+    bigip_cm_config_sync,
+    bigip_cm_failover_status,
 )
 
 def as3_post(task: Task, as3_tenant: str) -> Result:
     # Get the failover status of the device.
     failover_status = task.run(
-        name="Get failover status", task=f5_bigip_cm_failover_status
+        name="Get failover status", task=bigip_cm_failover_status
     ).result
 
     # If it's the ACTIVE device, send the declaration and perform a sync.
     if failover_status == "ACTIVE":
         task.run(
             name="AS3 POST",
-            task=f5_atc,
+            task=atc,
             atc_method="POST",
             atc_service="AS3",
             as3_tenant=as3_tenant,
@@ -57,7 +57,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
         task.run(
             name="Synchronize the devices",
-            task=f5_bigip_cm_config_sync,
+            task=bigip_cm_config_sync,
             device_group=task.host["device_group"],
         )
 
@@ -85,24 +85,24 @@ print_result(result)
 
 ### Connections
 
-* __f5__: Connect to F5 BIG-IP systems using REST APIs.
+* __f5__: Connects to an F5 REST server.
 
 ### Tasks
 
-* __f5_atc__: Deploy an F5 Automation Toolchain (ATC) declaration (AS3, DO and TS*) on a BIG-IP system.
-* __f5_bigip_cm_config_sync__: Synchronize the configuration between BIG-IP systems.
-* __f5_bigip_cm_failover_status__: Get the failover status of the BIG-IP system.
-* __f5_bigip_cm_sync_status__: Get the configuration synchronization status of the BIG-IP system.
-* __f5_bigip_shared_file_transfer_uploads__: Upload a file to a BIG-IP system.
-* __f5_bigip_shared_iapp_lx_package__: Manage Javascript LX packages on a BIG-IP system.
-* __f5_bigip_sys_version__: Get software version information for the BIG-IP system.
-* __f5_bigip_util_unix_ls__: List information about the FILEs or directory content on a BIG-IP system.
-* __f5_bigip_util_unix_rm__: Delete a file on a BIG-IP system.
+* __atc__: Sends F5 Automation Toolchain (ATC) declaratives (like AS3, DO and TS) on a BIG-IP/BIG-IQ system.
+* __bigip_cm_config_sync__: Synchronizes the configuration between BIG-IP systems.
+* __bigip_cm_failover_status__: Gets the failover status of the BIG-IP system.
+* __bigip_cm_sync_status__: Gets the configuration synchronization status of the BIG-IP system.
+* __bigip_shared_file_transfer_uploads__: Uploads a file to a BIG-IP system.
+* __bigip_shared_iapp_lx_package__: Manages Javascript LX packages on a BIG-IP system.
+* __bigip_sys_version__: Gets software version information for the BIG-IP system.
+* __bigip_util_unix_ls__: Lists information about the FILEs or directory content on a BIG-IP system.
+* __bigip_util_unix_rm__: Deletes a file on a BIG-IP system.
 
 ## Roadmap
 
 * ATC:
-  * *Support Telemetry (TS)
+  * Support Telemetry (TS)
   * Support BIG-IQ
 * Support dry-run mode
 

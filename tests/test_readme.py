@@ -7,9 +7,9 @@ from nornir_utils.plugins.functions import print_result
 
 import responses
 from nornir_f5.plugins.tasks import (
-    f5_atc,
-    f5_bigip_cm_config_sync,
-    f5_bigip_cm_failover_status,
+    atc,
+    bigip_cm_config_sync,
+    bigip_cm_failover_status,
 )
 
 from .conftest import base_resp_dir, load_json
@@ -17,13 +17,13 @@ from .conftest import base_resp_dir, load_json
 
 def as3_post(task: Task, as3_tenant: str) -> Result:
     failover_status = task.run(
-        name="Get failover status", task=f5_bigip_cm_failover_status
+        name="Get failover status", task=bigip_cm_failover_status
     ).result
 
     if failover_status == "ACTIVE":
         task.run(
             name="AS3 POST",
-            task=f5_atc,
+            task=atc,
             atc_delay=0,
             atc_method="POST",
             atc_retries=3,
@@ -36,7 +36,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
 
         task.run(
             name="Synchronize the devices",
-            task=f5_bigip_cm_config_sync,
+            task=bigip_cm_config_sync,
             delay=0,
             device_group=task.host["device_group"],
             retries=3,

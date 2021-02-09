@@ -4,7 +4,7 @@ import re
 import pytest
 
 import responses
-from nornir_f5.plugins.tasks import f5_atc
+from nornir_f5.plugins.tasks import atc
 
 from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
 
@@ -245,7 +245,7 @@ def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Deploy AS3 Declaration",
-        task=f5_atc,
+        task=atc,
         atc_delay=0,
         atc_retries=3,
         **kwargs,
@@ -335,7 +335,7 @@ def test_do_deploy(nornir, kwargs, resp, task_statuses, expected):
     nornir = nornir.filter(name="bigip1.localhost")
     result = nornir.run(
         name="Deploy DO Declaration",
-        task=f5_atc,
+        task=atc,
         atc_delay=0,
         atc_retries=3,
         **kwargs,

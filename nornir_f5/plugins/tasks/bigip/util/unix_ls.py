@@ -5,7 +5,7 @@ from nornir.core.task import Result, Task
 from nornir_f5.plugins.connections import f5_rest_client
 
 
-def f5_bigip_util_unix_ls(task: Task, file_path: str) -> Result:
+def bigip_util_unix_ls(task: Task, file_path: str) -> Result:
     """Task to list information about the FILEs.
 
     Args:
