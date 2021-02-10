@@ -6,11 +6,7 @@ from nornir.core.task import Result, Task
 from nornir_utils.plugins.functions import print_result
 
 import responses
-from nornir_f5.plugins.tasks import (
-    atc,
-    bigip_cm_config_sync,
-    bigip_cm_failover_status,
-)
+from nornir_f5.plugins.tasks import atc, bigip_cm_config_sync, bigip_cm_failover_status
 
 from .conftest import base_resp_dir, load_json
 

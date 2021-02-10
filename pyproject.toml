@@ -17,7 +17,7 @@ license = "Apache-2.0"
 name = "nornir_f5"
 readme = "README.md"
 repository = "https://github.com/erjac77/nornir_f5"
-version = "0.2.0"
+version = "0.3.0"
 
 [tool.poetry.urls]
 Issues = "https://github.com/erjac77/nornir_f5/issues"

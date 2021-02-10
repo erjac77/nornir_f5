@@ -89,7 +89,7 @@ print_result(result)
 
 ### Tasks
 
-* __atc__: Sends F5 Automation Toolchain (ATC) declaratives (like AS3, DO and TS) on a BIG-IP/BIG-IQ system.
+* __atc__: Sends F5 Automation Toolchain (ATC) declaratives (like AS3, DO and TS) on a BIG-IP/IQ system.
 * __bigip_cm_config_sync__: Synchronizes the configuration between BIG-IP systems.
 * __bigip_cm_failover_status__: Gets the failover status of the BIG-IP system.
 * __bigip_cm_sync_status__: Gets the configuration synchronization status of the BIG-IP system.
@@ -102,7 +102,6 @@ print_result(result)
 ## Roadmap
 
 * ATC:
-  * Support Telemetry (TS)
   * Support BIG-IQ
 * Support dry-run mode
 

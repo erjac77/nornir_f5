@@ -43,17 +43,17 @@ ATC_COMPONENTS = {
             },
         }
     },
-    # "Telemetry": {
-    #     "endpoints": {
-    #         "configure": {
-    #             "uri": "/mgmt/shared/telemetry/declare",
-    #             "methods": ["GET", "POST"],
-    #         },
-    #         "info": {"uri": "/mgmt/shared/telemetry/info", "methods": ["GET"]},
-    #     }
-    # },
+    "Telemetry": {
+        "endpoints": {
+            "configure": {
+                "uri": "/mgmt/shared/telemetry/declare",
+                "methods": ["GET", "POST"],
+            },
+            "info": {"uri": "/mgmt/shared/telemetry/info", "methods": ["GET"]},
+        }
+    },
 }
-ATC_SERVICE_OPTIONS = ["AS3", "Device"]  # , "Telemetry"]
+ATC_SERVICE_OPTIONS = ["AS3", "Device", "Telemetry"]
 
 
 def _build_as3_endpoint(
@@ -126,6 +126,14 @@ def _send(
     # Device
     if atc_service == "Device" and atc_method == "POST":
         resp = client.post(url, json=atc_declaration)
+
+    # Telemetry
+    if atc_service == "Telemetry" and atc_method == "POST":
+        resp = client.post(url, json=atc_declaration)
+
+        message = resp.json()["message"]
+        if message != "success":
+            raise Exception("The declaration deployment failed.")
 
     # GET
     if atc_method == "GET":
@@ -272,8 +280,8 @@ def atc(
         atc_service=atc_service,
     ).result
 
-    # If 'atc_method' is 'GET', return the declaration
-    if atc_method == "GET":
+    # If 'Telemetry' or 'GET', return the declaration
+    if atc_service == "Telemetry" or atc_method == "GET":
         return Result(host=task.host, result=atc_send_result)
 
     # Wait for task to complete

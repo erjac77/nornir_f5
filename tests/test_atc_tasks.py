@@ -343,3 +343,73 @@ def test_do_deploy(nornir, kwargs, resp, task_statuses, expected):
 
     # Assert result
     assert_result(result, expected)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "resp", "expected"),
+    [
+        # POST TS declaration from file
+        (
+            {
+                "atc_declaration_file": f"{base_decl_dir}/atc/telemetry/default_pull_consumer.json",  # noqa B950
+                "atc_method": "POST",
+                "atc_service": "Telemetry",
+            },
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/atc/telemetry/success.json",
+            },
+            {
+                "result_file": f"{base_resp_dir}/atc/telemetry/success.json",
+            },
+        ),
+        # POST TS declaration, failed
+        (
+            {
+                "atc_declaration": {"class": "Telemetry"},
+                "atc_method": "POST",
+                "atc_service": "Telemetry",
+            },
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/atc/telemetry/failed.json",
+            },
+            {
+                "result": "The declaration deployment failed.",
+                "failed": True,
+            },
+        ),
+    ],
+)
+@responses.activate
+def test_ts_deploy(nornir, kwargs, resp, expected):
+    # Register mock responses
+    # GET TS info
+    responses.add(
+        responses.GET,
+        "https://bigip1.localhost:443/mgmt/shared/telemetry/info",
+        json=load_json(f"{base_resp_dir}/atc/telemetry/version_1.17.0.json"),
+        status=200,
+    )
+
+    if resp:
+        responses_data = load_json(resp["data"])
+        responses.add(
+            kwargs["atc_method"] if "atc_method" in kwargs else "GET",
+            "https://bigip1.localhost:443/mgmt/shared/telemetry/declare",
+            json=responses_data,
+            status=resp["status_code"],
+        )
+
+    # Run task
+    nornir = nornir.filter(name="bigip1.localhost")
+    result = nornir.run(
+        name="Deploy TS Declaration",
+        task=atc,
+        atc_delay=0,
+        atc_retries=3,
+        **kwargs,
+    )
+
+    # Assert result
+    assert_result(result, expected)
