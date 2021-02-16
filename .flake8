@@ -17,7 +17,6 @@ select =
   S, # flake8-bandit
   W # pycodestyle (warnings)
 ignore = E203, E501, W503
-extend-ignore = E800 # TODO: Remove when feature complete
 max-line-length = 80
 max-complexity = 10
 docstring-convention = google

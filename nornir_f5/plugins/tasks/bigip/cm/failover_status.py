@@ -12,7 +12,7 @@ def bigip_cm_failover_status(task: Task) -> Result:
         task (Task): The Nornir task.
 
     Returns:
-        Result: The result with the failover status.
+        Result: The failover status.
     """
     resp = f5_rest_client(task).get(
         f"https://{task.host.hostname}:{task.host.port}/mgmt/tm/cm/failover-status",

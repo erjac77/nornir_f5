@@ -20,6 +20,12 @@ from .conftest import assert_result, base_resp_dir, load_json
             {"status_code": 200},
             {"result": "The file was uploaded successfully.", "changed": True},
         ),
+        # Dry-run
+        (
+            {"local_file_path": "./tests/files/myfile.txt", "dry_run": True},
+            {"status_code": 200},
+            {"result": None, "changed": False},
+        ),
         (
             {
                 "local_file_path": "./tests/files/myfile.txt",
@@ -89,6 +95,21 @@ def test_upload_file(nornir, kwargs, resp, expected):
             },
             ["CREATED", "STARTED", "FINISHED"],
             {"result": "The LX package was successfully installed.", "changed": True},
+        ),
+        # Dry-run
+        (
+            {"package": "./tests/files/mypackage.rpm", "dry_run": True},
+            "13.1.1.4",
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/bigip/util/list_found.json",
+            },
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/bigip/shared/iapp/task_created.json",
+            },
+            [],
+            {"result": None, "changed": False},
         ),
         (
             {"package": "./tests/files/mypackage.rpm", "retain_package_file": True},

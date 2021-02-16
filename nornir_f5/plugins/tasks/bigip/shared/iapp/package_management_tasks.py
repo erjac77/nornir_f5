@@ -1,6 +1,7 @@
 """Nornir F5 Package Management tasks."""
 import os
 import time
+from typing import Optional
 
 from nornir.core.task import Result, Task
 from packaging.version import Version
@@ -47,6 +48,7 @@ def bigip_shared_iapp_lx_package(
     task: Task,
     package: str,
     delay: int = 3,
+    dry_run: Optional[bool] = None,
     retain_package_file: bool = False,
     retries: int = 60,
     state: str = "present",
@@ -57,6 +59,7 @@ def bigip_shared_iapp_lx_package(
         task (Task): The Nornir task.
         delay (int): The delay (in seconds) between retries
             when checking if async call is complete.
+        dry_run (Optional[bool]): Whether to apply changes or not.
         package (str): The RPM package to installed/uninstall.
         retain_package_file (bool): The flag that specifies whether the install file
             should be deleted on successful installation of the package.
@@ -92,10 +95,11 @@ def bigip_shared_iapp_lx_package(
             task.run(
                 name="Upload the RPM on the BIG-IP",
                 task=bigip_shared_file_transfer_uploads,
+                dry_run=dry_run,
                 local_file_path=package,
             )
 
-    # Install/unistall the package
+    # Install/uninstall the package
     host = f"{task.host.hostname}:{task.host.port}"
     data = {
         "operation": "INSTALL",
@@ -107,6 +111,11 @@ def bigip_shared_iapp_lx_package(
             "operation": "UNINSTALL",
             "packageName": package_name,
         }
+
+    dry_run = task.is_dry_run(dry_run)
+    if dry_run:
+        return Result(host=task.host, result=None)
+
     task_id = client.post(
         f"https://{host}/mgmt/shared/iapp/package-management-tasks",
         json=data,

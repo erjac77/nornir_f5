@@ -54,19 +54,23 @@ def test_list_files(nornir, file, resp, expected):
 
 
 @pytest.mark.parametrize(
-    ("file", "resp", "expected"),
+    ("kwargs", "resp", "expected"),
     [
         (
-            "mypackage.rpm",
-            {
-                "status_code": 200,
-            },
+            {"file_path": "mypackage.rpm"},
+            {"status_code": 200},
             {"result": "The file was successfully deleted.", "changed": True},
+        ),
+        # Dry-run
+        (
+            {"file_path": "mypackage.rpm", "dry_run": True},
+            {"status_code": 200},
+            {"result": None, "changed": False},
         ),
     ],
 )
 @responses.activate
-def test_remove_file(nornir, file, resp, expected):
+def test_remove_file(nornir, kwargs, resp, expected):
     # Register mock responses
     responses.add(
         responses.POST,
@@ -77,7 +81,7 @@ def test_remove_file(nornir, file, resp, expected):
 
     # Run task
     nornir = nornir.filter(name="bigip1.localhost")
-    result = nornir.run(name="Remove file", task=bigip_util_unix_rm, file_path=file)
+    result = nornir.run(name="Remove file", task=bigip_util_unix_rm, **kwargs)
 
     # Assert result
     assert_result(result, expected)

@@ -1,13 +1,10 @@
 """Nornir F5 Automation Toolchain (ATC) tasks.
 
 Allows to deploy F5 ATC declarations (AS3, DO, TS) on BIG-IP systems.
-
-Todo:
-    * Telemetry
 """
-
 import json
 import time
+from typing import Optional
 from urllib.parse import urlencode
 
 from nornir.core.task import Result, Task
@@ -187,6 +184,7 @@ def atc(
     atc_method: str = "GET",
     atc_retries: int = 10,
     atc_service: str = "",
+    dry_run: Optional[bool] = None,
 ) -> Result:
     """Task to deploy declaratives on F5 devices.
 
@@ -219,6 +217,7 @@ def atc(
         atc_service (str): The ATC service.
             Accepted values include [AS3, Device, Telemetry].
             If not provided, this will auto select from the declaration.
+        dry_run (Optional[bool]): Whether to apply changes or not.
 
     Returns:
         Result: The result.
@@ -226,6 +225,8 @@ def atc(
     Raises:
         Exception: The raised exception when the task had an error.
     """
+    dry_run = task.is_dry_run(dry_run)
+
     # Get ATC declaration from file
     if atc_declaration_file:
         with open(atc_declaration_file, "r") as f:
@@ -269,6 +270,9 @@ def atc(
             atc_config_endpoint=atc_config_endpoint,
             atc_method=atc_method,
         )
+
+    if dry_run:
+        return Result(host=task.host, result=None)
 
     # Send the declaration
     atc_send_result = task.run(

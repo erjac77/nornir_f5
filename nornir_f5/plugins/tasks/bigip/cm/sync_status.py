@@ -12,7 +12,7 @@ def bigip_cm_sync_status(task: Task) -> Result:
         task (Task): The Nornir task.
 
     Returns:
-        Result: The result with the sync status.
+        Result: The sync status.
     """
     resp = f5_rest_client(task).get(
         f"https://{task.host.hostname}:{task.host.port}/mgmt/tm/cm/sync-status",

@@ -1,5 +1,6 @@
 """Nornir F5 Uploads tasks."""
 import os
+from typing import Optional
 
 from nornir.core.task import Result, Task
 
@@ -20,7 +21,7 @@ def _upload_file(
     task: Task,
     local_file_path: str,
     url: str,
-    destination_file_name: str = None,
+    destination_file_name: Optional[str] = None,
 ) -> Result:
     chunk_size = 1024 * 7168
     index = 0
@@ -52,21 +53,30 @@ def _upload_file(
 
 
 def bigip_shared_file_transfer_uploads(
-    task: Task, local_file_path: str, destination_file_name: str = None
+    task: Task,
+    local_file_path: str,
+    destination_file_name: Optional[str] = None,
+    dry_run: Optional[bool] = None,
 ) -> Result:
     """Upload a file to a BIG-IP system using the iControl REST API.
 
     Args:
         task: (Task): The Nornir task.
-        local_file_path (str): The full path of the file to be uploaded.
+        dry_run (Optional[bool]): Whether to apply changes or not.
         destination_file_name (str): The name of the file to upload
             on the remote device.
+        local_file_path (str): The full path of the file to be uploaded.
 
     Returns:
         Result: The result of the task.
     """
     host = f"{task.host.hostname}:{task.host.port}"
     uri = f"{FILE_TRANSFER_OPTIONS['file']['endpoints']['uploads']['uri']}"
+
+    dry_run = task.is_dry_run(dry_run)
+    if dry_run:
+        return Result(host=task.host, result=None)
+
     task.run(
         name="Upload the file",
         task=_upload_file,

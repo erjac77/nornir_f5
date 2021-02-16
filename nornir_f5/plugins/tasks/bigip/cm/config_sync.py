@@ -2,6 +2,7 @@
 
 import logging
 import time
+from typing import Optional
 
 from nornir.core.task import Result, Task
 
@@ -16,6 +17,7 @@ def bigip_cm_config_sync(
     device_group: str,
     delay: int = 6,
     direction: str = "to-group",
+    dry_run: Optional[bool] = None,
     force_full_load_push: bool = False,
     retries: int = 50,
 ) -> Result:
@@ -33,6 +35,7 @@ def bigip_cm_config_sync(
             the newest configuration.
             `to-group` updates the configurations of the remote devices in the specified
             device group with the configuration of the local device.
+        dry_run (Optional[bool]): Whether to apply changes or not.
         force_full_load_push (bool): It forces all other devices to pull
             all synchronizable configuration from this device.
         retries (int): The number of times the task will check for a finished
@@ -53,7 +56,8 @@ def bigip_cm_config_sync(
     if direction not in SYNC_DIRECTION_OPTIONS:
         raise Exception(f"Direction '{direction}' is not valid.")
 
-    if sync_status not in ["In Sync", "Standalone"]:
+    dry_run = task.is_dry_run(dry_run)
+    if sync_status not in ["In Sync", "Standalone"] and not dry_run:
         data = {
             "command": "run",
             "utilCmdArgs": f"config-sync {direction} {device_group}{' force-full-load-push' if force_full_load_push else ''}",  # noqa B950

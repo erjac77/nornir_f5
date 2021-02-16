@@ -81,6 +81,12 @@ def test_get_sync_status(nornir, resp, expected):
             ["Changes Pending", "Not All Devices Synced", "In Sync"],
             {"result": "In Sync", "changed": True},
         ),
+        # Dry-run
+        (
+            {"direction": "to-group", "dry_run": True},
+            ["Changes Pending"],
+            {"result": "Changes Pending", "changed": False},
+        ),
         # No sync, standalone
         (
             {},

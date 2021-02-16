@@ -96,14 +96,8 @@ print_result(result)
 * __bigip_shared_file_transfer_uploads__: Uploads a file to a BIG-IP system.
 * __bigip_shared_iapp_lx_package__: Manages Javascript LX packages on a BIG-IP system.
 * __bigip_sys_version__: Gets software version information for the BIG-IP system.
-* __bigip_util_unix_ls__: Lists information about the FILEs or directory content on a BIG-IP system.
+* __bigip_util_unix_ls__: Lists information about the file(s) or directory content on a BIG-IP system.
 * __bigip_util_unix_rm__: Deletes a file on a BIG-IP system.
-
-## Roadmap
-
-* ATC:
-  * Support BIG-IQ
-* Support dry-run mode
 
 ## Authors
 

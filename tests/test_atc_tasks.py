@@ -14,29 +14,24 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
     [
         # GET AS3 declaration with show and show_hash
         (
-            {
-                "as3_show": "full",
-                "as3_show_hash": True,
-                "atc_service": "AS3",
-            },
+            {"as3_show": "full", "as3_show_hash": True, "atc_service": "AS3"},
             {"status_code": 200, "data": f"{base_decl_dir}/atc/as3/simple_01.json"},
             [""],
-            {
-                "result_file": f"{base_decl_dir}/atc/as3/simple_01.json",
-            },
+            {"result_file": f"{base_decl_dir}/atc/as3/simple_01.json"},
+        ),
+        # Dry-run
+        (
+            {"atc_service": "AS3", "dry_run": True},
+            {"status_code": 200, "data": f"{base_decl_dir}/atc/as3/simple_01.json"},
+            [""],
+            {"result": None, "changed": False},
         ),
         # GET declaration with invalid atc_service
         (
-            {
-                "atc_declaration": {"class": "AS2"},
-                "atc_service": "AS2",
-            },
+            {"atc_declaration": {"class": "AS2"}, "atc_service": "AS2"},
             {},
             [""],
-            {
-                "result": "ATC service 'AS2' is not valid.",
-                "failed": True,
-            },
+            {"result": "ATC service 'AS2' is not valid.", "failed": True},
         ),
         # POST AS3 declaration without atc_service
         (
@@ -50,10 +45,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             ["in progress", "success"],
-            {
-                "result": "ATC declaration successfully deployed.",
-                "changed": True,
-            },
+            {"result": "ATC declaration successfully deployed.", "changed": True},
         ),
         # POST AS3 declaration from file
         (
@@ -68,10 +60,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             ["in progress", "success"],
-            {
-                "result": "ATC declaration successfully deployed.",
-                "changed": True,
-            },
+            {"result": "ATC declaration successfully deployed.", "changed": True},
         ),
         # POST AS3 declaration from url
         (
@@ -103,10 +92,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "data": f"{base_resp_dir}/atc/as3/declaration_failed.json",
             },
             [],
-            {
-                "result": "The declaration deployment failed.",
-                "failed": True,
-            },
+            {"result": "The declaration deployment failed.", "failed": True},
         ),
         # POST AS3 declaration, timeout
         (
@@ -121,10 +107,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             ["in progress"],
-            {
-                "result": "The task has reached maximum retries.",
-                "failed": True,
-            },
+            {"result": "The task has reached maximum retries.", "failed": True},
         ),
         # POST AS3 declaration, error message
         (
@@ -139,10 +122,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             ["in progress", "failed"],
-            {
-                "result": "The task failed.",
-                "failed": True,
-            },
+            {"result": "The task failed.", "failed": True},
         ),
         # DELETE AS3 declaration
         (
@@ -156,10 +136,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
                 "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
             },
             ["in progress", "success"],
-            {
-                "result": "ATC declaration successfully deployed.",
-                "changed": True,
-            },
+            {"result": "ATC declaration successfully deployed.", "changed": True},
         ),
         # PATCH AS3 declaration, invalid atc method
         (
@@ -170,10 +147,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
             },
             {},
             [""],
-            {
-                "result": "ATC method 'PATCH' is not valid.",
-                "failed": True,
-            },
+            {"result": "ATC method 'PATCH' is not valid.", "failed": True},
         ),
     ],
 )
@@ -270,10 +244,7 @@ def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
                 "data": f"{base_resp_dir}/atc/device/task_processing.json",
             },
             ["processing", "success"],
-            {
-                "result": "ATC declaration successfully deployed.",
-                "changed": True,
-            },
+            {"result": "ATC declaration successfully deployed.", "changed": True},
         ),
     ],
 )
@@ -374,10 +345,7 @@ def test_do_deploy(nornir, kwargs, resp, task_statuses, expected):
                 "status_code": 200,
                 "data": f"{base_resp_dir}/atc/telemetry/failed.json",
             },
-            {
-                "result": "The declaration deployment failed.",
-                "failed": True,
-            },
+            {"result": "The declaration deployment failed.", "failed": True},
         ),
     ],
 )
