@@ -62,9 +62,15 @@ def _login_response():
 
 
 @pytest.fixture(autouse=True)
-def _logout_response():
+def _tokens_response():
     responses.add(
         responses.DELETE,
+        re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authz/tokens"),
+        json={},
+        status=200,
+    )
+    responses.add(
+        responses.PATCH,
         re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authz/tokens"),
         json={},
         status=200,

@@ -24,7 +24,7 @@ DEFAULT_RETRY_STRATEGY = Retry(
 )
 DEFAULT_TIMEOUT = 5  # seconds
 LOGIN_URI = "/mgmt/shared/authn/login"
-LOGOUT_URI = "/mgmt/shared/authz/tokens"
+TOKENS_URI = "/mgmt/shared/authz/tokens"
 
 
 class _TimeoutHTTPAdapter(HTTPAdapter):
@@ -87,14 +87,16 @@ class F5RestClient:
             extras (Optional[Dict[str, Any]): The extra variables.
             configuration (Optional[Config]): The configuration.
         """
-        connection = requests.Session()
-        connection.verify = extras.get("validate_certs", False)
+        session = requests.Session()
+        session.verify = extras.get("validate_certs", False)
 
+        # Set debug and looging hooks
         hooks = [_assert_status_hook]
         if extras.get("debug"):
             hooks.append(_logging_hook)
-        connection.hooks["response"] = hooks
+        session.hooks["response"] = hooks
 
+        # Use a custom adapter with a default timeout
         kwargs = {
             "max_retries": DEFAULT_RETRY_STRATEGY,
             "timeout": extras.get("timeout", None),
@@ -102,27 +104,35 @@ class F5RestClient:
         adapter = _TimeoutHTTPAdapter(
             **{k: v for k, v in kwargs.items() if v is not None}
         )
-        connection.mount("https://", adapter)
-        connection.mount("http://", adapter)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
 
         # Set the host. This is used by the close method to delete the token.
         self.host = f"{hostname}:{port}"
 
+        # Get a token
         data = {
             "username": username,
             "password": password,
             "loginProviderName": extras.get("login_provider_name", "tmos"),
         }
-        resp = connection.post(f"https://{self.host}{LOGIN_URI}", json=data)
-        connection.headers["X-F5-Auth-Token"] = resp.json()["token"]["token"]
+        resp = session.post(f"https://{self.host}{LOGIN_URI}", json=data)
+        token = resp.json()["token"]["token"]
+        session.headers["X-F5-Auth-Token"] = token
 
-        self.connection = connection
+        # Modify the timeout value of the token
+        token_timeout = extras.get("token_timeout", None)
+        if token_timeout and token_timeout in range(0, 36000):
+            data = {"timeout": token_timeout}
+            session.patch(f"https://{self.host}{TOKENS_URI}/{token}", json=data)
+
+        self.connection = session
 
     def close(self) -> None:
         """Deletes the token and closes the connection."""
         token = self.connection.headers.get("X-F5-Auth-Token", None)
         if token:
-            self.connection.delete(f"https://{self.host}{LOGOUT_URI}/{token}")
+            self.connection.delete(f"https://{self.host}{TOKENS_URI}/{token}")
         self.connection.close()
 
 
