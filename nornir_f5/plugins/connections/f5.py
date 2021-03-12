@@ -90,13 +90,11 @@ class F5RestClient:
         session = requests.Session()
         session.verify = extras.get("validate_certs", False)
 
-        # Set debug and looging hooks
         hooks = [_assert_status_hook]
         if extras.get("debug"):
             hooks.append(_logging_hook)
         session.hooks["response"] = hooks
 
-        # Use a custom adapter with a default timeout
         kwargs = {
             "max_retries": DEFAULT_RETRY_STRATEGY,
             "timeout": extras.get("timeout", None),
@@ -110,7 +108,6 @@ class F5RestClient:
         # Set the host. This is used by the close method to delete the token.
         self.host = f"{hostname}:{port}"
 
-        # Get a token
         data = {
             "username": username,
             "password": password,
@@ -120,7 +117,6 @@ class F5RestClient:
         token = resp.json()["token"]["token"]
         session.headers["X-F5-Auth-Token"] = token
 
-        # Modify the timeout value of the token
         token_timeout = extras.get("token_timeout", None)
         if token_timeout and token_timeout in range(0, 36000):
             data = {"timeout": token_timeout}

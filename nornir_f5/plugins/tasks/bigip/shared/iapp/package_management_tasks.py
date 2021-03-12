@@ -57,10 +57,10 @@ def bigip_shared_iapp_lx_package(
 
     Args:
         task (Task): The Nornir task.
+        package (str): The RPM package to installed/uninstall.
         delay (int): The delay (in seconds) between retries
             when checking if async call is complete.
         dry_run (Optional[bool]): Whether to apply changes or not.
-        package (str): The RPM package to installed/uninstall.
         retain_package_file (bool): The flag that specifies whether the install file
             should be deleted on successful installation of the package.
         retries (int): The number of times the task will check for a finished task

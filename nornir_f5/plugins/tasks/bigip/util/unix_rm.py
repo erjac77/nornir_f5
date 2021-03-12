@@ -14,8 +14,8 @@ def bigip_util_unix_rm(
 
     Args:
         task (Task): The Nornir task.
-        dry_run (Optional[bool]): Whether to apply changes or not.
         file_path (str): The file to be deleted.
+        dry_run (Optional[bool]): Whether to apply changes or not.
 
     Returns:
         Result: The result of the command.

@@ -176,14 +176,14 @@ def atc(
     task: Task,
     as3_show: str = "base",
     as3_show_hash: bool = False,
-    as3_tenant: str = "",
-    atc_declaration: str = "",
-    atc_declaration_file: str = "",
-    atc_declaration_url: str = "",
+    as3_tenant: Optional[str] = None,
+    atc_declaration: Optional[str] = None,
+    atc_declaration_file: Optional[str] = None,
+    atc_declaration_url: Optional[str] = None,
     atc_delay: int = 30,
     atc_method: str = "GET",
     atc_retries: int = 10,
-    atc_service: str = "",
+    atc_service: Optional[str] = None,
     dry_run: Optional[bool] = None,
 ) -> Result:
     """Task to deploy declaratives on F5 devices.
@@ -200,13 +200,13 @@ def atc(
         as3_show_hash (bool): The AS3 `showHash` value that is used as protection
             mechanism for tenants in a declaration. If set to `True`, the result returns
             an `optimisticLockKey` for each tenant.
-        as3_tenant: The AS3 tenant filter. This only updates the tenant specified,
-            even if there are other tenants in the declaration.
-        atc_declaration (str): The ATC declaration.
+        as3_tenant (Optional[str]): The AS3 tenant filter. This only updates the tenant
+            specified, even if there are other tenants in the declaration.
+        atc_declaration (Optional[str]): The ATC declaration.
             Mutually exclusive with `atc_declaration_file` and `atc_declaration_url`.
-        atc_declaration_file (str): The path of the ATC declaration.
+        atc_declaration_file (Optional[str]): The path of the ATC declaration.
             Mutually exclusive with `atc_declaration` and `atc_declaration_url`.
-        atc_declaration_url (str): The URL of the ATC declaration.
+        atc_declaration_url (Optional[str]): The URL of the ATC declaration.
             Mutually exclusive with `atc_declaration` and `atc_declaration_file`.
         atc_delay (int): The delay (in seconds) between retries
             when checking if async call is complete.
@@ -214,7 +214,7 @@ def atc(
             for all services, and [DELETE] for AS3.
         atc_retries (int): The number of times the task will check for a finished task
             before failing.
-        atc_service (str): The ATC service.
+        atc_service (Optional[str]): The ATC service.
             Accepted values include [AS3, Device, Telemetry].
             If not provided, this will auto select from the declaration.
         dry_run (Optional[bool]): Whether to apply changes or not.
@@ -225,8 +225,6 @@ def atc(
     Raises:
         Exception: The raised exception when the task had an error.
     """
-    dry_run = task.is_dry_run(dry_run)
-
     # Get ATC declaration from file
     if atc_declaration_file:
         with open(atc_declaration_file, "r") as f:
@@ -263,14 +261,15 @@ def atc(
     # Build AS3 endpoint
     if atc_service == "AS3":
         atc_config_endpoint = _build_as3_endpoint(
-            as3_tenant=as3_tenant,
-            as3_version=atc_service_info["version"],
             as3_show=as3_show,
             as3_show_hash=as3_show_hash,
+            as3_tenant=as3_tenant,
+            as3_version=atc_service_info["version"],
             atc_config_endpoint=atc_config_endpoint,
             atc_method=atc_method,
         )
 
+    dry_run = task.is_dry_run(dry_run)
     if dry_run:
         return Result(host=task.host, result=None)
 

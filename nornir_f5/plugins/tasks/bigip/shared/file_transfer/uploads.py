@@ -62,10 +62,10 @@ def bigip_shared_file_transfer_uploads(
 
     Args:
         task: (Task): The Nornir task.
-        dry_run (Optional[bool]): Whether to apply changes or not.
-        destination_file_name (str): The name of the file to upload
-            on the remote device.
         local_file_path (str): The full path of the file to be uploaded.
+        destination_file_name (Optional[str]): The name of the file to upload
+            on the remote device.
+        dry_run (Optional[bool]): Whether to apply changes or not.
 
     Returns:
         Result: The result of the task.

@@ -14,13 +14,13 @@ Collection of Nornir plugins to interact with F5 systems and deploy declaratives
 ### Pip
 
 ```bash
-pip install nornir_f5
+pip install nornir-f5
 ```
 
 ### Poetry
 
 ```bash
-poetry add nornir_f5
+poetry add nornir-f5
 ```
 
 ## Usage
@@ -45,7 +45,7 @@ def as3_post(task: Task, as3_tenant: str) -> Result:
     # If it's the ACTIVE device, send the declaration and perform a sync.
     if failover_status == "ACTIVE":
         task.run(
-            name="AS3 POST",
+            name="POST AS3 Declaration from file",
             task=atc,
             atc_method="POST",
             atc_service="AS3",
@@ -73,7 +73,7 @@ nr = InitNornir(config_file="config.yml")
 nr = nr.filter(platform="f5_bigip")
 
 result = nr.run(
-    name="POST AS3 Declaration from file",
+    name="AS3 POST",
     task=as3_post,
     as3_tenant="Simple_01",
 )
