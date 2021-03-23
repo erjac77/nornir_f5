@@ -1,6 +1,6 @@
 """Nornir F5 tasks."""
 
-from nornir_f5.plugins.tasks.atc import atc
+from nornir_f5.plugins.tasks.atc import atc, atc_info
 from nornir_f5.plugins.tasks.bigip.cm.config_sync import bigip_cm_config_sync
 from nornir_f5.plugins.tasks.bigip.cm.failover_status import bigip_cm_failover_status
 from nornir_f5.plugins.tasks.bigip.cm.sync_status import bigip_cm_sync_status
@@ -16,6 +16,7 @@ from nornir_f5.plugins.tasks.bigip.util.unix_rm import bigip_util_unix_rm
 
 __all__ = (
     "atc",
+    "atc_info",
     "bigip_cm_config_sync",
     "bigip_cm_failover_status",
     "bigip_cm_sync_status",

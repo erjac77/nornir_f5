@@ -101,9 +101,9 @@ def _build_as3_endpoint(
 def _send(
     task: Task,
     atc_config_endpoint: str,
+    atc_declaration: str,
     atc_method: str,
     atc_service: str,
-    atc_declaration: str,
 ) -> Result:
     client = f5_rest_client(task)
     host = f"{task.host.hostname}:{task.host.port}"
@@ -172,6 +172,42 @@ def _wait_task(
     raise Exception("The task has reached maximum retries.")
 
 
+def atc_info(task: Task, atc_method: str, atc_service: str) -> Result:
+    """Task to verify if ATC service is available and collect service info.
+
+    Args:
+        task (Task): The Nornir task.
+        atc_method (str): The HTTP method. Accepted values include [POST, GET]
+            for all services, and [DELETE] for AS3.
+        atc_service (str): The ATC service.
+            Accepted values include [AS3, Device, Telemetry].
+
+    Returns:
+        Result: The result.
+
+    Raises:
+        Exception: The raised exception when the task had an error.
+    """
+    client = f5_rest_client(task)
+    host = f"{task.host.hostname}:{task.host.port}"
+
+    # Validate ATC service
+    if atc_service not in ATC_SERVICE_OPTIONS:
+        raise Exception(f"ATC service '{atc_service}' is not valid.")
+
+    # Validate ATC method
+    atc_methods = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["methods"]
+    if atc_method not in atc_methods:
+        raise Exception(f"ATC method '{atc_method}' is not valid.")
+
+    return Result(
+        host=task.host,
+        result=client.get(
+            f"https://{host}{ATC_COMPONENTS[atc_service]['endpoints']['info']['uri']}"
+        ).json(),
+    )
+
+
 def atc(
     task: Task,
     as3_show: str = "base",
@@ -212,8 +248,8 @@ def atc(
             when checking if async call is complete.
         atc_method (str): The HTTP method. Accepted values include [POST, GET]
             for all services, and [DELETE] for AS3.
-        atc_retries (int): The number of times the task will check for a finished task
-            before failing.
+        atc_retries (int): The number of times the task will check
+            for a finished task before failing.
         atc_service (Optional[str]): The ATC service.
             Accepted values include [AS3, Device, Telemetry].
             If not provided, this will auto select from the declaration.
@@ -221,9 +257,6 @@ def atc(
 
     Returns:
         Result: The result.
-
-    Raises:
-        Exception: The raised exception when the task had an error.
     """
     # Get ATC declaration from file
     if atc_declaration_file:
@@ -236,24 +269,14 @@ def atc(
     # Get ATC service from declaration
     if atc_declaration and not atc_service:
         atc_service = atc_declaration["class"]
-    # Validate ATC service
-    if atc_service not in ATC_SERVICE_OPTIONS:
-        raise Exception(f"ATC service '{atc_service}' is not valid.")
 
-    # Validate ATC method
-    atc_methods = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["methods"]
-    if atc_method not in atc_methods:
-        raise Exception(f"ATC method '{atc_method}' is not valid.")
-
-    # Set host
-    host = f"{task.host.hostname}:{task.host.port}"
-
-    # Verify ATC service is available, and collect service info
-    atc_service_info = (
-        f5_rest_client(task)
-        .get(f"https://{host}{ATC_COMPONENTS[atc_service]['endpoints']['info']['uri']}")
-        .json()
-    )
+    # Get service info
+    atc_service_info = task.run(
+        name="Get ATC info",
+        task=atc_info,
+        atc_method=atc_method,
+        atc_service=atc_service,
+    ).result
 
     # Set ATC config endpoint
     atc_config_endpoint = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["uri"]

@@ -14,6 +14,7 @@ connection_plugins:
   - nornir_f5.plugins.connections.F5RestClient
 task_plugins:
   - nornir_f5.plugins.tasks.atc
+  - nornir_f5.plugins.tasks.atc_info
   - nornir_f5.plugins.tasks.bigip_cm_failover_status
   - nornir_f5.plugins.tasks.bigip_cm_sync_config
   - nornir_f5.plugins.tasks.bigip_cm_sync_status

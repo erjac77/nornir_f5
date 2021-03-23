@@ -24,7 +24,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
             {"atc_service": "AS3", "dry_run": True},
             {"status_code": 200, "data": f"{base_decl_dir}/atc/as3/simple_01.json"},
             [""],
-            {"result": None, "changed": False},
+            {"result": None},
         ),
         # GET declaration with invalid atc_service
         (
