@@ -1,0 +1,9 @@
+{
+    "id": "4eb601c4-7f06-4fd7-b8d5-947e7b206a37",
+    "results": [
+        {
+            "message": "declaration is invalid",
+            "errors": "['/Simple_01/APP/VIRTUAL/virtualAddresses: should NOT have fewer than 1 items']"
+        }
+    ]
+}

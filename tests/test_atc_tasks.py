@@ -124,6 +124,24 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
             ["in progress", "failed"],
             {"result": "The task failed.", "failed": True},
         ),
+        # POST AS3 declaration invalid
+        (
+            {
+                "atc_declaration": {"class": "AS3"},
+                "atc_method": "POST",
+                "atc_service": "AS3",
+                "as3_tenant": "Simple_01",
+            },
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+            },
+            ["in progress", "declaration is invalid"],
+            {
+                "result": "['/Simple_01/APP/VIRTUAL/virtualAddresses: should NOT have fewer than 1 items']",
+                "failed": True,
+            },
+        ),
         # DELETE AS3 declaration
         (
             {
