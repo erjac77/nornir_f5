@@ -161,7 +161,6 @@ def _wait_task(
         )
         message = result["message"]
 
-        print(message)
         if message in ["in progress", "processing"]:
             pass
         elif message == "success":
