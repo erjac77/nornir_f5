@@ -154,10 +154,12 @@ def _wait_task(
             f"https://{host}{atc_task_endpoint}/{atc_task_id}"
         ).json()
 
-        if "results" in atc_task_resp:
-            message = atc_task_resp["results"][0]["message"]
-        else:
-            message = atc_task_resp["result"]["message"]
+        result = (
+            atc_task_resp["results"][0]
+            if "results" in atc_task_resp
+            else atc_task_resp["result"]
+        )
+        message = result["message"]
 
         if message in ["in progress", "processing"]:
             pass
@@ -165,6 +167,8 @@ def _wait_task(
             return Result(host=task.host, changed=True, result=message)
         elif message == "no change":
             return Result(host=task.host, result=message)
+        elif message == "declaration is invalid":
+            raise Exception(result["errors"])
         else:
             raise Exception("The task failed.")
         time.sleep(atc_delay)
