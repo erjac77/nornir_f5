@@ -138,7 +138,7 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
             },
             ["in progress", "declaration is invalid"],
             {
-                "result": "['/Simple_01/A1/service/virtualAddresses: should NOT have fewer than 1 items']",
+                "result": "['/Simple_01/A1/service/virtualAddresses: should NOT have fewer than 1 items']",  # noqa B950
                 "failed": True,
             },
         ),
