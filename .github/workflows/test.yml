@@ -8,7 +8,7 @@ jobs:
       matrix:
         python-version: ['3.6', '3.7', '3.8', '3.9']
         platform: [ubuntu-20.04]
-        poetry-version: [1.1.4]
+        poetry-version: [1.1.15]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout code
