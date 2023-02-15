@@ -169,6 +169,8 @@ def _wait_task(
             return Result(host=task.host, result=message)
         elif message == "declaration is invalid":
             raise Exception(result["errors"])
+        elif message == "declaration failed":
+            raise Exception(result["response"])
         else:
             raise Exception("The task failed.")
         time.sleep(atc_delay)
