@@ -1,7 +1,8 @@
 {
   "results": [
     {
-      "message": "declaration failed"
+      "message": "declaration failed",
+      "response": "The task failed."
     }
   ]
 }
