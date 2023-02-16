@@ -243,7 +243,6 @@ def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
             re.compile(
                 "https://bigip1.localhost:443/mgmt/shared/appsvcs/declare(/Simple_01)?"
             ),
-            match_querystring=False,
             json=responses_data,
             status=resp["status_code"],
         )
@@ -330,7 +329,6 @@ def test_do_deploy(nornir, kwargs, resp, task_statuses, expected):
         responses.add(
             kwargs["atc_method"] if "atc_method" in kwargs else "GET",
             "https://bigip1.localhost:443/mgmt/shared/declarative-onboarding",
-            match_querystring=False,
             json=responses_data,
             status=resp["status_code"],
         )
