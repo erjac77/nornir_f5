@@ -54,7 +54,7 @@ def bigip_cm_config_sync(
     ).result
 
     if direction not in SYNC_DIRECTION_OPTIONS:
-        raise Exception(f"Direction '{direction}' is not valid.")
+        raise Exception(f"Direction {direction!r} is not valid.")
 
     dry_run = task.is_dry_run(dry_run)
     if sync_status not in ["In Sync", "Standalone"] and not dry_run:

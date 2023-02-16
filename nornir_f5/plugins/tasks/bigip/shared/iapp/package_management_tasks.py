@@ -78,7 +78,7 @@ def bigip_shared_iapp_lx_package(
     # Check if LX is supported on the BIG-IP
     version = task.run(name="Get system version", task=bigip_sys_version).result
     if Version(version) < Version("12.0.0"):
-        raise Exception(f"BIG-IP version '{version}' is not supported.")
+        raise Exception(f"BIG-IP version {version!r} is not supported.")
 
     package_name = os.path.basename(package)
     remote_package_path = f"{FILE_TRANSFER_OPTIONS['file']['directory']}/{package_name}"
