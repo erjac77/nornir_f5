@@ -124,6 +124,21 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
             ["in progress", "failed"],
             {"result": "The task failed.", "failed": True},
         ),
+        # POST AS3 declaration, error message with response
+        (
+            {
+                "atc_declaration": {"class": "AS3"},
+                "atc_method": "POST",
+                "atc_service": "AS3",
+                "as3_tenant": "Simple_01",
+            },
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+            },
+            ["in progress", "declaration failed"],
+            {"result": "Error on Virtual.", "failed": True},
+        ),
         # POST AS3 declaration, invalid
         (
             {
@@ -228,7 +243,6 @@ def test_as3_deploy(nornir, kwargs, resp, task_statuses, expected, as3_version):
             re.compile(
                 "https://bigip1.localhost:443/mgmt/shared/appsvcs/declare(/Simple_01)?"
             ),
-            match_querystring=False,
             json=responses_data,
             status=resp["status_code"],
         )
@@ -315,7 +329,6 @@ def test_do_deploy(nornir, kwargs, resp, task_statuses, expected):
         responses.add(
             kwargs["atc_method"] if "atc_method" in kwargs else "GET",
             "https://bigip1.localhost:443/mgmt/shared/declarative-onboarding",
-            match_querystring=False,
             json=responses_data,
             status=resp["status_code"],
         )

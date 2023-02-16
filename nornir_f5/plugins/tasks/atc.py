@@ -169,6 +169,8 @@ def _wait_task(
             return Result(host=task.host, result=message)
         elif message == "declaration is invalid":
             raise Exception(result["errors"])
+        elif message == "declaration failed":
+            raise Exception(result["response"])
         else:
             raise Exception("The task failed.")
         time.sleep(atc_delay)
@@ -197,12 +199,12 @@ def atc_info(task: Task, atc_method: str, atc_service: str) -> Result:
 
     # Validate ATC service
     if atc_service not in ATC_SERVICE_OPTIONS:
-        raise Exception(f"ATC service '{atc_service}' is not valid.")
+        raise Exception(f"ATC service {atc_service!r} is not valid.")
 
     # Validate ATC method
     atc_methods = ATC_COMPONENTS[atc_service]["endpoints"]["configure"]["methods"]
     if atc_method not in atc_methods:
-        raise Exception(f"ATC method '{atc_method}' is not valid.")
+        raise Exception(f"ATC method {atc_method!r} is not valid.")
 
     return Result(
         host=task.host,
