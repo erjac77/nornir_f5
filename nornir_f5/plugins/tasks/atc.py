@@ -172,7 +172,7 @@ def _wait_task(
                 raise Exception(result["errors"])
             elif message == "declaration failed":
                 raise Exception(result["response"])
-            
+
         if retry:
             time.sleep(atc_delay)
         else:
@@ -181,7 +181,11 @@ def _wait_task(
                     continue
                 else:
                     message = result["message"]
-                    return Result(host=task.host, changed=True if message == "success" else False, result=message)        
+                    return Result(
+                        host=task.host,
+                        changed=True if message == "success" else False,
+                        result=message,
+                    )
 
     raise Exception("The task has reached maximum retries.")
 
