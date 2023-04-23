@@ -135,7 +135,6 @@ def test_as3_post(nornir, resp, task_id, task_statuses, sync_statuses):
     responses.add(
         responses.POST,
         "https://bigip1.localhost:443/mgmt/shared/appsvcs/declare/Simple_01",
-        match_querystring=False,
         json=load_json(resp["data"]),
         status=resp["status_code"],
     )
