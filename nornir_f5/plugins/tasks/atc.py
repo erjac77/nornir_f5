@@ -149,6 +149,14 @@ def _wait_task(
 ) -> Result:
     client = f5_rest_client(task)
     host = f"{task.host.hostname}:{task.host.port}"
+    _return = {
+        "declaration failed": {"retry": True, "result": "response", "raise": True},
+        "declaration is invalid": {"retry": True, "result": "errors", "raise": True},
+        "in progress": {"retry": True, "result": "message", "raise": False},
+        "no change": {"retry": False, "result": "message", "raise": False},
+        "processing": {"retry": True, "result": "message", "raise": False},
+        "success": {"retry": False, "result": "message", "raise": False},
+    }
 
     for _i in range(0, atc_retries):
         atc_task_resp = client.get(
@@ -164,15 +172,11 @@ def _wait_task(
         retry = False
         for result in results:
             message = result["message"]
-            if message in ["in progress", "processing"]:
-                retry = True
-                continue
-            elif message in ["no change", "success"]:
-                continue
-            elif message == "declaration is invalid":
-                raise Exception(result["errors"])
-            elif message == "declaration failed":
-                raise Exception(result["response"])
+            if message in _return:
+                if _return[message]["raise"]:
+                    raise Exception(result[_return[message]["result"]])
+                elif _return[message]["retry"]:
+                    retry = True
             else:
                 raise Exception("The task failed.")
 
