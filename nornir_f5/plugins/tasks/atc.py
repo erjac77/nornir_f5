@@ -188,7 +188,6 @@ def _wait_task(
                 for result in results:
                     if result["tenant"] == as3_tenant:
                         message = result["message"]
-            
             return Result(host=task.host, result=message)
 
     raise Exception("The task has reached maximum retries.")
