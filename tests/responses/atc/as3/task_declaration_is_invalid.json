@@ -3,7 +3,8 @@
     "results": [
         {
             "message": "declaration is invalid",
-            "errors": "['/Simple_01/A1/service/virtualAddresses: should NOT have fewer than 1 items']"
+            "errors": "['/Simple_01/A1/service/virtualAddresses: should NOT have fewer than 1 items']",
+            "tenant": "Simple_01"
         }
     ]
 }
