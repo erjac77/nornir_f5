@@ -145,6 +145,7 @@ def _wait_task(
     atc_task_id: str,
     atc_delay: int = 10,
     atc_retries: int = 30,
+    as3_tenant: Optional[str] = None,
 ) -> Result:
     client = f5_rest_client(task)
     host = f"{task.host.hostname}:{task.host.port}"
@@ -172,20 +173,19 @@ def _wait_task(
                 raise Exception(result["errors"])
             elif message == "declaration failed":
                 raise Exception(result["response"])
+            else:
+                raise Exception("The task failed.")
 
         if retry:
             time.sleep(atc_delay)
         else:
             for result in results:
-                if result["tenant"] == "Common":
-                    continue
+                message = result["message"]
+                if as3_tenant:
+                    if result["tenant"] == as3_tenant:
+                        return Result(host=task.host, result=message)
                 else:
-                    message = result["message"]
-                    return Result(
-                        host=task.host,
-                        changed=True if message == "success" else False,
-                        result=message,
-                    )
+                    return Result(host=task.host, result=message)
 
     raise Exception("The task has reached maximum retries.")
 
@@ -332,6 +332,7 @@ def atc(
     task_result = task.run(
         name="Wait for task to complete",
         task=_wait_task,
+        as3_tenant=as3_tenant,
         atc_delay=atc_delay,
         atc_retries=atc_retries,
         atc_task_endpoint=ATC_COMPONENTS[atc_service]["endpoints"]["task"]["uri"],
