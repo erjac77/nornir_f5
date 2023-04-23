@@ -154,24 +154,34 @@ def _wait_task(
             f"https://{host}{atc_task_endpoint}/{atc_task_id}"
         ).json()
 
-        result = (
-            atc_task_resp["results"][0]
+        results = (
+            atc_task_resp["results"]
             if "results" in atc_task_resp
-            else atc_task_resp["result"]
+            else [atc_task_resp["result"]]
         )
-        message = result["message"]
-
-        if message in ["in progress", "processing"]:
-            pass
-        elif message == "success":
-            return Result(host=task.host, changed=True, result=message)
-        elif message == "no change":
-            return Result(host=task.host, result=message)
-        elif message == "declaration is invalid":
-            raise Exception(result["errors"])
+        
+        retry = False
+        for result in results:
+            message = result["message"]
+            if message in ["in progress", "processing"]:
+                retry = True
+                continue
+            elif message in ["no change", "success"]:
+                continue
+            elif message == "declaration is invalid":
+                raise Exception(result["errors"])
+            else:
+                raise Exception("The task failed.")
+            
+        if retry:
+            time.sleep(atc_delay)
         else:
-            raise Exception("The task failed.")
-        time.sleep(atc_delay)
+            for result in results:
+                if result["tenant"] == "Common":
+                    continue
+                else:
+                    message = result["message"]
+                    return Result(host=task.host, changed=True if message == "success" else False, result=message)        
 
     raise Exception("The task has reached maximum retries.")
 
