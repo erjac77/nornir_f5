@@ -183,13 +183,13 @@ def _wait_task(
         if retry:
             time.sleep(atc_delay)
         else:
-            for result in results:
-                message = result["message"]
-                if as3_tenant:
+            message = results[0]["message"]
+            if as3_tenant:
+                for result in results:
                     if result["tenant"] == as3_tenant:
-                        return Result(host=task.host, result=message)
-                else:
-                    return Result(host=task.host, result=message)
+                        message = result["message"]
+            
+            return Result(host=task.host, result=message)
 
     raise Exception("The task has reached maximum retries.")
 

@@ -3,6 +3,10 @@
   "results": [
     {
       "message": "success",
+      "tenant": "Common"
+    },
+    {
+      "message": "success",
       "tenant": "Simple_01"
     }
   ]
