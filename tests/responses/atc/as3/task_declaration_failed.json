@@ -2,7 +2,8 @@
   "results": [
     {
       "message": "declaration failed",
-      "response": "Error on Virtual."
+      "response": "Error on Virtual.",
+      "tenant": "Simple_01"
     }
   ]
 }
