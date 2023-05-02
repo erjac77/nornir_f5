@@ -145,35 +145,50 @@ def _wait_task(
     atc_task_id: str,
     atc_delay: int = 10,
     atc_retries: int = 30,
+    as3_tenant: Optional[str] = None,
 ) -> Result:
     client = f5_rest_client(task)
     host = f"{task.host.hostname}:{task.host.port}"
+    _return = {
+        "declaration failed": {"retry": True, "result": "response", "raise": True},
+        "declaration is invalid": {"retry": True, "result": "errors", "raise": True},
+        "in progress": {"retry": True, "result": "message", "raise": False},
+        "no change": {"retry": False, "result": "message", "raise": False},
+        "processing": {"retry": True, "result": "message", "raise": False},
+        "success": {"retry": False, "result": "message", "raise": False},
+    }
 
     for _i in range(0, atc_retries):
         atc_task_resp = client.get(
             f"https://{host}{atc_task_endpoint}/{atc_task_id}"
         ).json()
 
-        result = (
-            atc_task_resp["results"][0]
+        results = (
+            atc_task_resp["results"]
             if "results" in atc_task_resp
-            else atc_task_resp["result"]
+            else [atc_task_resp["result"]]
         )
-        message = result["message"]
 
-        if message in ["in progress", "processing"]:
-            pass
-        elif message == "success":
-            return Result(host=task.host, changed=True, result=message)
-        elif message == "no change":
-            return Result(host=task.host, result=message)
-        elif message == "declaration is invalid":
-            raise Exception(result["errors"])
-        elif message == "declaration failed":
-            raise Exception(result["response"])
+        retry = False
+        for result in results:
+            message = result["message"]
+            if message in _return:
+                if _return[message]["raise"]:
+                    raise Exception(result[_return[message]["result"]])
+                elif _return[message]["retry"]:
+                    retry = True
+            else:
+                raise Exception("The task failed.")
+
+        if retry:
+            time.sleep(atc_delay)
         else:
-            raise Exception("The task failed.")
-        time.sleep(atc_delay)
+            message = results[0]["message"]
+            if as3_tenant:
+                for result in results:
+                    if result["tenant"] == as3_tenant:
+                        message = result["message"]
+            return Result(host=task.host, result=message)
 
     raise Exception("The task has reached maximum retries.")
 
@@ -320,6 +335,7 @@ def atc(
     task_result = task.run(
         name="Wait for task to complete",
         task=_wait_task,
+        as3_tenant=as3_tenant,
         atc_delay=atc_delay,
         atc_retries=atc_retries,
         atc_task_endpoint=ATC_COMPONENTS[atc_service]["endpoints"]["task"]["uri"],

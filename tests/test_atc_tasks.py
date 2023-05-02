@@ -47,6 +47,19 @@ from .conftest import assert_result, base_decl_dir, base_resp_dir, load_json
             ["in progress", "success"],
             {"result": "ATC declaration successfully deployed.", "changed": True},
         ),
+        # POST AS3 declaration without atc_service
+        (
+            {
+                "atc_declaration": {"class": "AS3"},
+                "atc_method": "POST",
+            },
+            {
+                "status_code": 200,
+                "data": f"{base_resp_dir}/atc/as3/declaration_successfully_submitted.json",  # noqa B950
+            },
+            ["in progress", "success"],
+            {"result": "ATC declaration successfully deployed.", "changed": True},
+        ),
         # POST AS3 declaration from file
         (
             {
