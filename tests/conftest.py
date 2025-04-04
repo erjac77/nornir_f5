@@ -55,7 +55,7 @@ def _reset_data(nornir):
 def _login_response():
     responses.add(
         responses.POST,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authn/login"),
+        re.compile("https://bigip(1|2|3).localhost:443/mgmt/shared/authn/login"),
         json=load_json(f"{base_resp_dir}/bigip/shared/authn/login_success.json"),
         status=200,
     )
@@ -65,13 +65,13 @@ def _login_response():
 def _tokens_response():
     responses.add(
         responses.DELETE,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authz/tokens"),
+        re.compile("https://bigip(1|2|3).localhost:443/mgmt/shared/authz/tokens"),
         json={},
         status=200,
     )
     responses.add(
         responses.PATCH,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/shared/authz/tokens"),
+        re.compile("https://bigip(1|2|3).localhost:443/mgmt/shared/authz/tokens"),
         json={},
         status=200,
     )

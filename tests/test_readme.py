@@ -122,13 +122,13 @@ def test_as3_post(nornir, resp, task_id, task_statuses, sync_statuses):
     )
     responses.add(
         responses.GET,
-        re.compile("https://bigip2.localhost:443/mgmt/tm/cm/failover-status"),
+        re.compile("https://bigip(2|3).localhost:443/mgmt/tm/cm/failover-status"),
         json=load_json(f"{base_resp_dir}/bigip/cm/failover_status_standby.json"),
         status=200,
     )
     responses.add(
         responses.GET,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/shared/appsvcs/info"),
+        re.compile("https://bigip(1|2|3).localhost:443/mgmt/shared/appsvcs/info"),
         json=load_json(f"{base_resp_dir}/atc/as3/version_3.22.1.json"),
         status=200,
     )

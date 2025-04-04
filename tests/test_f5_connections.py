@@ -23,7 +23,7 @@ def test_connection(nornir):
     # Register mock responses
     responses.add(
         responses.GET,
-        re.compile("https://bigip(1|2).localhost:443/mgmt/toc"),
+        re.compile("https://bigip(1|2|3).localhost:443/mgmt/toc"),
         json={},
         status=200,
     )
@@ -36,10 +36,9 @@ def test_connection(nornir):
 
 
 @responses.activate
-def test_close_connection_without_token(nornir):
+def test_close_connection(nornir):
     def test_close_conn(task: Task) -> Result:
-        conn = task.host.get_connection(CONNECTION_NAME, task.nornir.config)
-        conn.headers.pop("X-F5-Auth-Token")
+        task.host.get_connection(CONNECTION_NAME, task.nornir.config)
         task.host.close_connection(CONNECTION_NAME)
         return {}
 

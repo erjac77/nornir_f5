@@ -1,4 +1,4 @@
-bigip1_2:
+bigip1_2_3:
   data:
     device_group: device_sync_group
     appsvcs:
