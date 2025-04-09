@@ -3,6 +3,7 @@
 Allows to interact with F5 devices.
 """
 
+from base64 import b64encode
 from typing import Any, Dict, Optional
 
 import requests
@@ -107,20 +108,25 @@ class F5RestClient:
 
         # Set the host. This is used by the close method to delete the token.
         self.host = f"{hostname}:{port}"
+        if extras.get("basic_auth", False):
+            basic_token = b64encode(f"{username}:{password}".encode("utf-8")).decode(
+                "ascii"
+            )
+            session.headers["Authorization"] = f"Basic {basic_token}"
+        else:
+            data = {
+                "username": username,
+                "password": password,
+                "loginProviderName": extras.get("login_provider_name", "tmos"),
+            }
+            resp = session.post(f"https://{self.host}{LOGIN_URI}", json=data)
+            token = resp.json()["token"]["token"]
+            session.headers["X-F5-Auth-Token"] = token
 
-        data = {
-            "username": username,
-            "password": password,
-            "loginProviderName": extras.get("login_provider_name", "tmos"),
-        }
-        resp = session.post(f"https://{self.host}{LOGIN_URI}", json=data)
-        token = resp.json()["token"]["token"]
-        session.headers["X-F5-Auth-Token"] = token
-
-        token_timeout = extras.get("token_timeout", None)
-        if token_timeout and token_timeout in range(0, 36000):
-            data = {"timeout": token_timeout}
-            session.patch(f"https://{self.host}{TOKENS_URI}/{token}", json=data)
+            token_timeout = extras.get("token_timeout", None)
+            if token_timeout and token_timeout in range(0, 36000):
+                data = {"timeout": token_timeout}
+                session.patch(f"https://{self.host}{TOKENS_URI}/{token}", json=data)
 
         self.connection = session
 
